@@ -1,0 +1,21 @@
+{
+	"libraries":[
+		{
+			"name":"continuous.r",
+			"description":"for comparision between two continuous values",
+			"type":"continuous"
+		},
+		{
+			"name":"categorical.r",
+			"description":"for comparision between two categorical values",
+			"type":"categorical"
+		},
+		{
+			"name":"fisher.r",
+			"description":"for comparision between two categorical values",
+			"type":"categorical",
+			"author":"Ryan",
+			"date":"05-27-2016"
+		}
+	]
+}
