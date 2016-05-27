@@ -10,7 +10,7 @@ metadata <- metadata[-grep('#', metadata$id),]
 meta <- metadata$PlatinumFreeInterval
 
 # group (randomly generated)
-group <- sample(c('IN','OUT'),160, replace=TRUE)
+group <- sample(c('IN','OUT'), length(meta), replace=TRUE)
 
 # define 'null' strings
 null_string <- c("","[Not Applicable]","[Not Available]","[Pending]","[]")
@@ -19,4 +19,6 @@ null_string <- c("","[Not Applicable]","[Not Available]","[Pending]","[]")
 snippet <- "rcode/continuous.r"
 source(snippet)
 
-test_result <- test(meta, group, null_string)
+# you can see your results if your snippet doesn't have any issue.
+# otherwise, you can see some error messages in console.
+test(meta, group, null_string)
