@@ -7,7 +7,7 @@ The Rsnippet Guidelines outlines a set of rules and suggestions for formatting r
 
 <!--rsnippet-data-->
 ##Code Format
-Rsnippets are required to be written in R. They define a function called test which takes in three arrays, performs a statistical test, then returns an array of items for use by the ADBio program. The format of data input is defined by the writer of the test, but all outputs must follow the same format.
+Rsnippets are required to be written in R. They define a function named test which takes in three arrays, performs a statistical test, and then returns an array of items for use by the ADBio program. If the writer plans on using their Rsnippet with the ADBio program server, as opposed solely using their local machine, they are restricted to the Rpackages already used by the server. The format of data input is defined by the writer of the test, but all outputs must follow the same format.
 
 <!--rnsippet-file header-->
 ##Rsnippet File Header
@@ -24,7 +24,7 @@ The header should follow the format of the example below:
 
 *Title: Two-sample t-test*
 
-*Uses: The two-sample t-test is used when one varaible is continuous and one variable is categorical with two groups. This test assumes that samples have been drawn from normally distributed populations and that the populations have equal variances. The two-sample t-test is used to test for differences in mean between the groups defined by the categorical variable. Since this test uses the mean, the two-sample t-test should be chosen when the data does not have a large range or is not significantly skewed.*
+*Uses: The two-sample t-test is used when one varaible is continuous and one variable is categorical with two groups. This test assumes that samples have been drawn from normally distributed populations and that the populations have equal variances. The two-sample t-test is used to test for differences in mean between the groups defined by the categorical variable. The null hypothesis is that the means are equal, while the alternative hypothesis is that the means are not equal. Since this test uses the mean, the two-sample t-test should be chosen when the data does not have a large range or is not significantly skewed.*
 
 *Data Format: The data contains numerical values. (Other examples include: the data is binary, values are encoded as strings)*
 
@@ -32,7 +32,7 @@ The header should follow the format of the example below:
 
 *Date: June 1, 2016*
 
-*Notes: Follow this example to create Rsnippet headers*
+*Notes: Follow this example to create Rsnippet headers.*
 
 <!--rsnippet-input-->
 ##Input
@@ -50,14 +50,14 @@ To begin, missing data should be handled accordingly. Additionally, if there are
 
 <!--rsnippet-return values-->
 ##Return Values
-The Rnsippet test function returns an array of values - testMethods, errorcode, pvalues, types, labels, gin, and gout.
+The Rnsippet test function returns an array of values - testMethods, errorcode, pvalues, charts, labels, gin, and gout.
 
 |Value     |Description|
 |:--------:|:-------:
 |testMethods|The name of the test used encoded as a string.|
-|errorcode|The value returned if there was an error in processing the data encoded as a numeric. If no error has occurred the value is 0.|
+|errorcode| An array of the value returned if there was an error in processing the data, encoded as a numeric, and the error message to be given to the user, encoded as a string. If no error has occurred the value is 0.|
 |pvalues|The value of the p-value obtained with the statistical test encoded as a double.|
-|types|The type of varaible analyzed encoded as a string. This is used to determine what type of chart the data should be displayed in.|
+|charts|An array of the chart types, encoded as strings, that will be used to output the data. Chart type options can be found at http://www.highcharts.com/demo.|
 |labels|The labels that are to be used for the different groups tested encoded as an array of strings.|
 |gin|The data included within the "in" group encoded as an array. This is used to gather counts for the displayed chart.|
 |gout|The data included within the "out" group encoded as an array. This is used to gather counts for the displayed chart.|
