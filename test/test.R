@@ -1,13 +1,17 @@
 # set your working directory
 setwd("~/GitHub/rsnippet");
 
+fixFactor <- function(x) {
+  if(is.factor(x)) factor(x) else x
+}
+
 # read a metadata file (tsv)
 metadata <- read.delim('test/metadata.tsv')
 metaconfig <- metadata[grep('#', metadata$id),]
 metadata <- metadata[-grep('#', metadata$id),]
 
 # select the column you want
-meta <- metadata$PlatinumFreeInterval
+meta <- fixFactor(metadata$PlatinumFreeInterval)
 
 # group (randomly generated)
 group <- sample(c('IN','OUT'), length(meta), replace=TRUE)
