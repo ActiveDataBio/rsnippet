@@ -18,6 +18,10 @@
 # Author: Kaitlin Cornwell
 #
 # Date: June 1, 2016
+#
+# Notes: This Rsnippet will calculate the expected cell frequencies
+# of the contingency table and chose the appropriate test for the
+# data.
 
 test <- function(meta, group, null_string) {
   
