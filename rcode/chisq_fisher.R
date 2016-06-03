@@ -19,9 +19,18 @@
 #
 # Date: June 1, 2016
 #
-# Notes: This Rsnippet will calculate the expected cell frequencies
-# of the contingency table and chose the appropriate test for the
-# data.
+# Notes: To begin, The chi-squared test of homogeneity is performed using 
+# the same method as the chi-squared test of independence. The null
+# hypothesis for the chi-squared test of homogeneity is that the
+# proportions between the two groups are the same, while the 
+# alternative is that they are different. The chi-squared test of 
+# independence is used when two samples are chosen, then measurements
+# are taken. The chi-squared test of homogeneity is used when random subsets
+# of particular groups are chosen (where groups are defined by a measure
+# that has already been taken) and then another measurement is taken of 
+# a different variable. Lastly, this Rsnippet will calculate the expected
+# cell frequencies of the contingency table and choose the appropriate test
+# for the data.
 
 test <- function(meta, group, null_string) {
   
