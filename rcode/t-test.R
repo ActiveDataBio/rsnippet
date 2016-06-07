@@ -19,35 +19,76 @@
 # Notes: 
 
 
-test <- function(meta, group, null_string) {
-  if (!is.character(meta)) {
-    meta = as.character(meta)
-  }
+test = function(meta, group, null_string) {
+  return = tryCatch({
+    ## check data input
+    if (is.null(meta)) {
+      stop("null")
+    }
+    if(!is.character(meta)) {
+      meta = as.character(meta)
+    }
+    
+    ## remove missing values
+    mvidx = !(meta %in% null_string)
+    if (length(which(mvidx)) == 0) {
+      stop("null")
+    }
+    rmgroup = group[mvidx]
+    rmmeta = meta[mvidx]
+    
+    ## Change data to numeric form
+    rmmeta = as.numeric(rmmeta)
+    
+    ## check "in" and "out" groups
+    levels = sort(unique(rmgroup))
+    if(length(levels) != 2) {
+      stop("level")
+    }
+    if(levels[1] != "IN") {
+      stop("category")
+    }
+    if(levels[2] != "OUT") {
+      stop("category")
+    }
+    
+    ## Split data into "IN" and "OUT" groups
+    group_index = (rmgroup %in% "IN")
+    meta_in = rmmeta[group_index]
+    meta_out = rmmeta[!group_index]
+    
+    ## Test varaince and perform t-test
+    var = var.test(meta_in, meta_out, alternative = "two.sided")
+    if (var$p.value < .05) {
+      test = t.test(meta_in, meta_out,
+                    alternative = "two.sided", var.equal = FALSE)
+    }
+    else {
+      test = t.test(meta_in, meta_out,
+                    alternative = "two.sided", var.equal = TRUE)
+    }
+    
+    return(c(testMethods = gsub("\\'", "\\\\'", test$method),
+             pvalues = test$p.value,
+             charts = "box plot",
+             labels = '',
+             gin = paste(meta_in, collapse = ','),
+             gout = paste(meta_out, collapse = ',')))
+    
+  }, error = function (e) {
+    if (grepl("null", e)) {
+      return(c("No meta data", 2))
+    }
+    if (grepl("level", e)) {
+      return(c("Incorrect number of groups", 4))
+    }
+    if (grepl("category", e)) {
+      return(c("Incorrect group names", 4))
+    }
+    return(c("Unknown error", 1))
+  }, warning = function (e) {
+    return(c("Values received were non-numeric", 3))
+  })
   
-  ## Remove missing values
-  mvidx = !(meta %in% null_string)
-  rmgroup = group[mvidx]
-  rmmeta = meta[mvidx]
-  rmmeta = as.numeric(rmmeta)
-  
-  ## Separate into "in" and "out" groups
-  group_index = (rmgroup %in% "IN")
-  meta_in = rmmeta[group_index]
-  meta_out = rmmeta[!group_index]
-  
-  ## test variance and conduct t-test
-  var = var.test(meta_in, meta_out, alternative = "two.sided")
-  if (var$p.value < .05) {
-    test = t.test(meta_in, meta_out, alternative = "two.sided", var.equal = FALSE)
-  }
-  else {
-    test = t.test(meta_in, meta_out, atlernative = "two.sided", var.equal = TRUE)
-  }
-  
-  return((c(testMethods = gsub("\\'", "\\\\'", test$method),
-            pvalues = test$p.value,
-            charts = "box plot",
-            labels = '',
-            gin = paste(meta_in, collapse = ','),
-            gout = paste(meta_out, collapse = ','))))
+  return(return)
 }
