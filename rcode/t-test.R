@@ -43,7 +43,7 @@ test = function(meta, group, null_string) {
     ## check "in" and "out" groups
     levels = sort(unique(rmgroup))
     if(length(levels) != 2) {
-      stop("level")
+      stop("Warning:level")
     }
     if(levels[1] != "IN") {
       stop("category")
@@ -85,9 +85,8 @@ test = function(meta, group, null_string) {
     if (grepl("category", e)) {
       return(c("Incorrect group names", 4))
     }
+    print(e)
     return(c("Unknown error", 1))
-  }, warning = function (e) {
-    return(c("Values received were non-numeric", 3))
   })
   
   return(return)
