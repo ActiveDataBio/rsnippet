@@ -3,11 +3,11 @@
 # Uses: The two-sample t-test is used when one variable is continuous and one
 # variable is categorical with two groups. This test assumes that samples have
 # been drawn from normally distributed popluations and that the popluations have
-# equal variances. The two-sample t-test is used to test for diffrences in mean
-# between teh groups defined by the categorical variable. The null hypothesis is
+# equal variances. The two-sample t-test is used to test for differences in mean
+# between the groups defined by the categorical variable. The null hypothesis is
 # that the means are equal, while the alternative hypothesis is that the means
-# are not equal. Since this test uses the mean, the two-sample t-test should be 
-# chosen when the data does not have a large range or is signifcanly skewed.
+# are not equal. Since this test uses the mean, the two-sample t-test should not 
+# be chosen when the data has a large range or is signifcanly skewed.
 #
 # Data format: Values except for null/missing characters are numeric (may be
 # encoded as strings).
@@ -20,10 +20,10 @@
 
 
 test = function(meta, group, null_string) {
-  return = tryCatch({
+  ret = tryCatch({
     ## check data input
     if (is.null(meta)) {
-      stop("null")
+      stop("Custom: null")
     }
     if(!is.character(meta)) {
       meta = as.character(meta)
@@ -32,25 +32,26 @@ test = function(meta, group, null_string) {
     ## remove missing values
     mvidx = !(meta %in% null_string)
     if (length(which(mvidx)) == 0) {
-      stop("null")
+      stop("Custom: null")
     }
     rmgroup = group[mvidx]
     rmmeta = meta[mvidx]
     
+    ## Check data type
+    table = table(rmmeta)
+    for (i in 1:dim(table)) {
+      if (table[[i]] > (.2 * length(rmmeta))) {
+        stop("Custom: type")
+      }
+    }
+    
     ## Change data to numeric form
     rmmeta = as.numeric(rmmeta)
     
-    ## check "in" and "out" groups
-    levels = sort(unique(rmgroup))
-    if(length(levels) != 2) {
-      stop("level")
-    }
-    if(levels[1] != "IN") {
-      stop("category")
-    }
-    if(levels[2] != "OUT") {
-      stop("category")
-    }
+    ## Remove NAs
+    mvidx = (!is.na(rmmeta))
+    rmgroup = rmgroup[mvidx]
+    rmmeta = rmmeta[mvidx]
     
     ## Split data into "IN" and "OUT" groups
     group_index = (rmgroup %in% "IN")
@@ -67,28 +68,45 @@ test = function(meta, group, null_string) {
       test = t.test(meta_in, meta_out,
                     alternative = "two.sided", var.equal = TRUE)
     }
-    
-    return(c(testMethods = gsub("\\'", "\\\\'", test$method),
-             pvalues = test$p.value,
-             charts = "box plot",
-             labels = '',
-             gin = paste(meta_in, collapse = ','),
-             gout = paste(meta_out, collapse = ',')))
-    
-  }, error = function (e) {
-    if (grepl("null", e)) {
-      return(c("No meta data", 2))
+  }, 
+    ## error handler function
+    error = function (e) {
+     if (grepl("Custom:", e)) {
+      if (grepl("null", e)) {
+        return(c("No meta data", 2))
+      }
+      if (grepl("onevar", e)) {
+        return(c("Same value for each observation", 3))
+      }
+      if (grepl("type",e )) {
+        return(c("Incorrect data type: received categorical instead of continuous", 3))
+      }
     }
-    if (grepl("level", e)) {
-      return(c("Incorrect number of groups", 4))
-    }
-    if (grepl("category", e)) {
-      return(c("Incorrect group names", 4))
-    }
-    return(c("Unknown error", 1))
-  }, warning = function (e) {
-    return(c("Values received were non-numeric", 3))
+    return(c(e, 1))
   })
   
-  return(return)
+  ## if length of return statement is 2 then an error occurred
+  ## return the error message and code
+  if (length(ret) == 2) {
+    return(c(msg = gsub("/n", "", ret[1]), status = ret[2]))
+  }
+  
+  ## get warnings and parse
+  if (is.null(warnings(ret))) {
+    warn = 0
+    message = ""
+  } else {
+    warn = -1
+    index = lapply(warnings(ret), function(x) grep(":", x))
+    message = names(index)
+  }
+  
+  return(c(testMethods = gsub("\\'", "\\\\'", test$method),
+    pvalues = test$p.value,
+    charts = "box plot",
+    labels = '',
+    gin = paste(meta_in, collapse = ','),
+    gout = paste(meta_out, collapse = ','),
+    msg = paste(message, collapse = ','),
+    status = warn)) 
 }
