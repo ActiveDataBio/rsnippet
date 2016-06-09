@@ -39,6 +39,9 @@ test = function(meta, group, null_string) {
     
     ## Check data type
     table = table(rmmeta)
+    if (dim(table) == 1) {
+      stop("Custom: oneval")
+    }
     for (i in 1:dim(table)) {
       if (table[[i]] > (.2 * length(rmmeta))) {
         stop("Custom: type")
@@ -52,6 +55,11 @@ test = function(meta, group, null_string) {
     mvidx = (!is.na(rmmeta))
     rmgroup = rmgroup[mvidx]
     rmmeta = rmmeta[mvidx]
+    
+    ## Check data
+    if (length(rmmeta) == 0) {
+      stop("Custom: type")
+    }
     
     ## Split data into "IN" and "OUT" groups
     group_index = (rmgroup %in% "IN")
@@ -75,7 +83,7 @@ test = function(meta, group, null_string) {
       if (grepl("null", e)) {
         return(c("No meta data", 2))
       }
-      if (grepl("onevar", e)) {
+      if (grepl("oneval", e)) {
         return(c("Same value for each observation", 3))
       }
       if (grepl("type",e )) {
@@ -91,7 +99,7 @@ test = function(meta, group, null_string) {
     return(c(msg = gsub("/n", "", ret[1]), status = ret[2]))
   }
   
-  ## get warnings and parse
+  ## get warnings
   if (is.null(warnings(ret))) {
     warn = 0
     message = ""
@@ -101,12 +109,12 @@ test = function(meta, group, null_string) {
     message = names(index)
   }
   
-  return(c(testMethods = gsub("\\'", "\\\\'", test$method),
-    pvalues = test$p.value,
+  return(c(testMethods = gsub("\\'", "\\\\'", ret$method),
+    pvalues = ret$p.value,
     charts = "box plot",
     labels = '',
     gin = paste(meta_in, collapse = ','),
     gout = paste(meta_out, collapse = ','),
     msg = paste(message, collapse = ','),
-    status = warn)) 
+    status = warn))
 }
