@@ -28,32 +28,102 @@
 # "Surv" and "survdiff".
 
 test <- function(meta, group, null_string) {
-  meta = as.character(meta)
-  
-  ## separate the time from the coded event
-  meta_time = substring(meta, first = 1, last = nchar(meta) - 1)
-  meta_time = as.numeric(meta_time)
-  meta_event = substring(meta, first = nchar(meta))
-  
-  ## change event coding from "a" and "b" to 0 = censor and 1 = event
-  for (i in 1:length(meta_event)) {
-    if (meta_event[i] == "a") {
-      meta_event[i] = 0
+  ret = tryCatch({
+    
+    if (is.null(meta)) {
+      stop("Custom: null")
     }
-    else {
-      meta_event[i] = 1
+    
+    if (!is.character(meta)) {
+      meta = as.character(meta)
     }
+    
+    ## remove missing values
+    mvidx = !(meta %in% null_string)
+    if (length(which(mvidx)) == 0) {
+      stop("Custom: null")
+    }
+    group = group[mvidx]
+    meta = meta[mvidx]
+    
+    
+    ## separate the time from the coded event
+    meta_time = substring(meta, first = 1, last = nchar(meta) - 1)
+    meta_time = as.numeric(meta_time)
+    meta_event = substring(meta, first = nchar(meta))
+    
+    ## Remove NAs
+    mvidx = (!is.na(meta_time)) & ((meta_event %in% "a") | (meta_event %in% "b"))
+    if (length(which(mvidx)) == 0) {
+      stop("Custom: coding")
+    }
+    meta_time = meta_time[mvidx]
+    meta_event = meta_event[mvidx]
+    rmgroup = group[mvidx]
+    
+    ## Check data
+    table = table(meta_time)
+    if (length(meta_time) == 0) {
+      stop("Custom: type")
+    }
+    
+    if (dim(table) == 1) {
+      stop("Custom: oneval")
+    }
+    if (length(which(rmgroup %in% "IN")) == 0 ||
+        length(which(rmgroup %in% "OUT")) == 0) {
+      stop("Custom: nullgroup")
+    }
+    
+    ## change event coding from "a" and "b" to 0 = censor and 1 = event
+    for (i in 1:length(meta_event)) {
+      if (meta_event[i] == "a") {
+        meta_event[i] = 0
+      }
+      else {
+        meta_event[i] = 1
+      }
+    }
+    meta_event = as.numeric(meta_event)
+    
+    ## Kaplan-Meier/log-rank test
+    test = survdiff(Surv(time = meta_time, event = meta_event, type = "right")
+                    ~ rmgroup, rho = 0)
+  },
+  ## error handler function
+  error = function (e) {
+    if (grepl("Custom:", e)) {
+      if (grepl("nullgroup", e)) {
+        return(c("No data in a group", 2))
+      }
+      if (grepl("null", e)) {
+        return(c("No meta data", 2))
+      }
+      if (grepl("oneval", e)) {
+        return(c("Same value for each observation", 3))
+      }
+      if (grepl("type", e)) {
+        return(c("Incorrect data type: received character instead of numeric for time", 3))
+      }
+      if (grepl("coding", e)) {
+        return(c("Incorrect coding: Time should be numeric with 'a' or 'b' appended", 3))
+      }
+    }
+    return(c(e, 1))
+  })
+  
+  ## if length of return statement is 2 then an error occurred
+  ## return the error message and code
+  if (length(ret) == 2) {
+    return(c(msg = ret[1], status = ret[2]))
   }
-  meta_event = as.numeric(meta_event)
-  
-  ## Kaplan-Meier/log-rank test
-  test = survdiff(Surv(time = meta_time, event = meta_event, type = "right")
-                  ~ group, rho = 0)
   
   return(c(testMethods = "Log-Rank Test for Survival Data",
            pvalues = (1 - pchisq(test$chisq, length(test$n) - 1)),
            charts = "line",
            labels = '',
-           gin = paste(meta_time[group %in% "IN"], collapse = ','),
-           gout = paste(meta_time[group %in% "OUT"], collapse = ',')))
+           gin = paste(meta_time[rmgroup %in% "IN"], collapse = ','),
+           gout = paste(meta_time[rmgroup %in% "OUT"], collapse = ','),
+           msg = "",
+           status = 0))
 }

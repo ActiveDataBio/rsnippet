@@ -37,17 +37,6 @@ test = function(meta, group, null_string) {
     rmgroup = group[mvidx]
     rmmeta = meta[mvidx]
     
-    ## Check data type
-    table = table(rmmeta)
-    if (dim(table) == 1) {
-      stop("Custom: oneval")
-    }
-    for (i in 1:dim(table)) {
-      if (table[[i]] > (.2 * length(rmmeta))) {
-        stop("Custom: type")
-      }
-    }
-    
     ## Change data to numeric form
     rmmeta = as.numeric(rmmeta)
     
@@ -59,6 +48,21 @@ test = function(meta, group, null_string) {
     ## Check data
     if (length(rmmeta) == 0) {
       stop("Custom: type")
+    }
+    if (length(which(rmgroup %in% "IN")) == 0 ||
+        length(which(rmgroup %in% "OUT")) == 0) {
+      stop("Custom: nullgroup")
+    }
+    
+    ## Check data type
+    table = table(rmmeta)
+    if (dim(table) == 1) {
+      stop("Custom: oneval")
+    }
+    for (i in 1:dim(table)) {
+      if (table[[i]] > (.2 * length(rmmeta))) {
+        stop("Custom: type")
+      }
     }
     
     ## Split data into "IN" and "OUT" groups
@@ -80,13 +84,16 @@ test = function(meta, group, null_string) {
     ## error handler function
     error = function (e) {
      if (grepl("Custom:", e)) {
+      if (grepl("nullgroup", e)) {
+        return(c("No data in a group", 2))
+      }
       if (grepl("null", e)) {
         return(c("No meta data", 2))
       }
       if (grepl("oneval", e)) {
         return(c("Same value for each observation", 3))
       }
-      if (grepl("type",e )) {
+      if (grepl("type", e)) {
         return(c("Incorrect data type: received categorical instead of continuous", 3))
       }
     }
@@ -96,17 +103,7 @@ test = function(meta, group, null_string) {
   ## if length of return statement is 2 then an error occurred
   ## return the error message and code
   if (length(ret) == 2) {
-    return(c(msg = gsub("/n", "", ret[1]), status = ret[2]))
-  }
-  
-  ## get warnings
-  if (is.null(warnings(ret))) {
-    warn = 0
-    message = ""
-  } else {
-    warn = -1
-    index = lapply(warnings(ret), function(x) grep(":", x))
-    message = names(index)
+    return(c(msg = ret[1], status = ret[2]))
   }
   
   return(c(testMethods = gsub("\\'", "\\\\'", ret$method),
@@ -115,6 +112,6 @@ test = function(meta, group, null_string) {
     labels = '',
     gin = paste(meta_in, collapse = ','),
     gout = paste(meta_out, collapse = ','),
-    msg = paste(message, collapse = ','),
-    status = warn))
+    msg = '',
+    status = 0))
 }

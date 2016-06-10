@@ -13,13 +13,13 @@
 # alternative hypothesis is that the proportions of one variable are
 # not independent of the other variable.
 #
-# Data format: The group labels are encoded as strings.
+# Data format: 
 #
 # Author: Kaitlin Cornwell
 #
 # Date: June 1, 2016
 #
-# Notes: To begin, The chi-squared test of homogeneity is performed using 
+# Notes: The chi-squared test of homogeneity is performed using 
 # the same method as the chi-squared test of independence. The null
 # hypothesis for the chi-squared test of homogeneity is that the
 # proportions between the two groups are the same, while the 
@@ -30,37 +30,87 @@
 # that has already been taken) and then another measurement is taken of 
 # a different variable. Lastly, this Rsnippet will calculate the expected
 # cell frequencies of the contingency table and choose the appropriate test
-# for the data.
+# (chi-squared or Fisher's exact) for the data.
 
 test <- function(meta, group, null_string) {
   
-  # change meta from factors to strings
-  meta = as.character(meta)
+  ret = tryCatch({
+    
+    ## check data type
+    if (is.null(meta)) {
+      stop("Custom: null")
+    }
+    
+    ## change meta from factors to strings
+    meta = as.character(meta)
+    
+    ## remove missing values
+    mvidx = !(meta %in% null_string)
+    if (length(which(mvidx)) == 0) {
+      stop("Custom: null")
+    }
+    rmgroup = group[mvidx]
+    rmmeta = meta[mvidx]
+    if (length(which(rmgroup %in% "IN")) == 0 ||
+        length(which(rmgroup %in% "OUT")) == 0) {
+      stop("Custom: nullgroup")
+    }
+    tempTable = table(rmmeta, rmgroup)
+    
+    tempRows = rownames(tempTable)
+    
+    ## Check data type
+    if (dim(tempTable)[1] == 1) {
+      stop("Custom: oneval")
+    }
+    if (dim(tempTable)[1] > ceiling(.75 * length(rmmeta))) {
+      stop("Custom: type")
+    }
+    
+    ## if >20% of expected frequences are <5 then use Fisher's exact test
+    if (test_freq(length(rmmeta), tempTable) > .2) {
+      test = fisher.test(rmmeta, rmgroup)
+    } else {
+      test = chisq.test(rmmeta, rmgroup)
+    }
+  },
+  ## error handler function
+  error = function (e) {
+    if (grepl("Custom:", e)) {
+      if (grepl("nullgroup", e)) {
+        return(c("No data in a group", 2))
+      }
+      if (grepl("null", e)) {
+        return(c("No meta data", 2))
+      }
+      if (grepl("oneval", e)) {
+        return(c("Same value for each observation", 3))
+      }
+      if (grepl("type", e)) {
+        return(c("Incorrect data type: received continuous instead of categorical", 3))
+      }
+    }
+    return(c(e, 1))
+  })
   
-  ## remove missing values
-  mvidx = !(meta %in% null_string)
-  rmgroup = group[mvidx]
-  rmmeta = meta[mvidx]
-  tempTable = table(rmmeta, rmgroup)
-  tempRows = rownames(tempTable)
-  
-  ## if >20% of expected frequences are <5 then use Fisher's exact test
-  if (test_freq(rmmeta, tempTable) > .2) {
-    test = fisher.test(rmmeta, rmgroup)
-  } else {
-    test = chisq.test(rmmeta, rmgroup)
+  ## if length of return statement is 2 then an error occurred
+  ## return the error message and code
+  if (length(ret) == 2) {
+    return(c(msg = ret[1], status = ret[2]))
   }
   
-  return ((c(testMethods = gsub("\\'", "\\\\'", test$method),
+  return (c(testMethods = gsub("\\'", "\\\\'", test$method),
              pvalues = test$p.value,
              charts = paste(c("stacked percentage column", "basic column",
                               "stacked column chart"), collapse = ','),
              labels = paste(tempRows[!tempRows %in% null_string], collapse = ','),
              gin = paste(tempTable[!tempRows %in% null_string,"IN"], collapse = ','),
-             gout = paste(tempTable[!tempRows %in% null_string,"OUT"], collapse = ','))))
+             gout = paste(tempTable[!tempRows %in% null_string,"OUT"], collapse = ','),
+             msg = '',
+             status = 0))
 }
 
-test_freq <- function(rmmeta, tempTable) {
+test_freq <- function(length, tempTable) {
   ## find row and column sums
   row_sums = vector(mode = "numeric", length = 0)
   for (i in 1:dim(tempTable)[1]) {
@@ -78,7 +128,7 @@ test_freq <- function(rmmeta, tempTable) {
   
   for (i in 1:dim(tempTable)[1]) {
     for (j in 1:dim(tempTable)[2]) {
-      ex_freq[i,j] = (row_sums[i] * col_sums[j])/length(rmmeta)
+      ex_freq[i,j] = (row_sums[i] * col_sums[j])/length
       if (ex_freq[i,j] < 5) {
         count = count + 1
       }
