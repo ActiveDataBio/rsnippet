@@ -105,7 +105,7 @@ test = function(meta, group, null_string) {
   if (length(ret) == 2) {
     return(c(msg = ret[1], status = ret[2]))
   }
-  
+
   return(c(testMethods = gsub("\\'", "\\\\'", ret$method),
     pvalues = ret$p.value,
     charts = "box plot",
