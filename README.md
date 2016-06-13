@@ -33,7 +33,7 @@ The header should follow the format of the example below:
 
 *Title: Two-sample t-test*
 
-*Uses: The two-sample t-test is used when one varaible is continuous and one variable is categorical with two groups. This test assumes that samples have been drawn from normally distributed populations and that the populations have equal variances. The two-sample t-test is used to test for differences in mean between the groups defined by the categorical variable. The null hypothesis is that the means are equal, while the alternative hypothesis is that the means are not equal. Since this test uses the mean, the two-sample t-test should be chosen when the data does not have a large range or is not significantly skewed.*
+*Uses: The two-sample t-test is used when one varaible is continuous and one variable is categorical with two groups. This test assumes that samples have been drawn from normally distributed populations and that the populations have equal variances. The two-sample t-test is used to test for differences in mean between the groups defined by the categorical variable. The null hypothesis is that the means are equal, while the alternative hypothesis is that the means are not equal. Since this test uses the mean, the two-sample t-test should not be chosen when the data has a large range or is signifcanly skewed.*
 
 *Data Format: Values except for null/missing characters are numeric. (Other examples include: the data is binary, values are encoded as strings)*
 
@@ -70,7 +70,7 @@ The Rnsippet test function returns an array of values - testMethods, pvalues, ch
 |gin|The data included within the "in" group, encoded as an array. This is used to gather counts for the displayed chart.|
 |gout|The data included within the "out" group, encoded as an array. This is used to gather counts for the displayed chart.|
 |msg| The error message recieved during data processing, encoded as a string. If no error was encountered, return an empty string (i.e: "").|
-|status|The value returned after the data was processed, encoded as a numeric. If no error occurred the value 0 is returned. Otherwise a value corresponding to the error that occurred is returned. See the list below for a list of codes.|
+|status|The value returned after the data was processed, encoded as a numeric. If no error occurred the value 0 is returned. Otherwise a value corresponding to the error that occurred is returned. A list of codes can be found below.|
 ##### Important Note
 If a fatal error occurred during data processing, return only an array containing the msg and status. If the statistical test was completed, return all values found in the table above.
 
