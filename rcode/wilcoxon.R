@@ -104,7 +104,7 @@ test <- function(meta, group, null_string) {
   
   return(c(testMethods = gsub("\\'", "\\\\'", test$method),
             pvalues = test$p.value,
-            charts = paste(c("box plot", "scatter plot"), collapse = ','),
+            charts = paste(c("box", "scatter"), collapse = ','),
             labels = '',
             gin = paste(meta_in, collapse = ','),
             gout = paste(meta_out, collapse = ','),

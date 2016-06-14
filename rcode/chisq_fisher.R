@@ -101,8 +101,8 @@ test <- function(meta, group, null_string) {
   
   return (c(testMethods = gsub("\\'", "\\\\'", test$method),
              pvalues = test$p.value,
-             charts = paste(c("stacked percentage column", "basic column",
-                              "stacked column chart"), collapse = ','),
+             charts = paste(c("stacked-column", "column",
+                              "stacked-column"), collapse = ','),
              labels = paste(tempRows[!tempRows %in% null_string], collapse = ','),
              gin = paste(tempTable[!tempRows %in% null_string,"IN"], collapse = ','),
              gout = paste(tempTable[!tempRows %in% null_string,"OUT"], collapse = ','),
