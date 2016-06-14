@@ -108,7 +108,7 @@ test = function(meta, group, null_string) {
 
   return(c(testMethods = gsub("\\'", "\\\\'", ret$method),
     pvalues = ret$p.value,
-    charts = "box plot",
+    charts = "box",
     labels = '',
     gin = paste(meta_in, collapse = ','),
     gout = paste(meta_out, collapse = ','),
