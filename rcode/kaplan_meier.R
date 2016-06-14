@@ -118,12 +118,26 @@ test <- function(meta, group, null_string) {
     return(c(msg = ret[1], status = ret[2]))
   }
   
+  ## get index where group switches from "in" to "out"
+  fit = survfit(Surv(time = meta_time, event = meta_event, type = "right") ~ rmgroup)
+  time = summary(fit)$time
+  prob = summary(fit)$surv
+  for (i in 1:(length(time) - 1)) {
+    if (time[i] > time[i + 1]) {
+      index = i
+    }
+  }
+  
   return(c(testMethods = "Log-Rank Test for Survival Data",
            pvalues = (1 - pchisq(test$chisq, length(test$n) - 1)),
-           charts = "line",
+           charts = "kaplan",
            labels = '',
-           gin = paste(meta_time[rmgroup %in% "IN"], collapse = ','),
-           gout = paste(meta_time[rmgroup %in% "OUT"], collapse = ','),
+           gin = paste(c(paste(time[1:index], collapse = ','),
+                         paste(prob[1:index], collapse = ',')),
+                       collapse = ';'),
+           gout = paste(c(paste(time[(index + 1):length(time)], collapse = ','),
+                          paste(prob[(index + 1):length(prob)], collapse = ',')),
+                        collapse = ';'),
            msg = "",
            status = 0))
 }

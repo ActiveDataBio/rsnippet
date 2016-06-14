@@ -6,7 +6,7 @@ fixFactor <- function(x) {
 }
 
 # read a metadata file (tsv)
-metadata <- read.delim('test/metadata.tsv')
+metadata <- read.delim('test/metadata(surv).txt')
 metaconfig <- metadata[grep('#', metadata$id),]
 metadata <- metadata[-grep('#', metadata$id),]
 
