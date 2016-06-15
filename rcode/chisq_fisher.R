@@ -99,12 +99,12 @@ test <- function(meta, group, null_string) {
     return(c(msg = ret[1], status = ret[2]))
   }
   
-  return (c(testMethods = gsub("\\'", "\\\\'", test$method),
-             pvalues = test$p.value,
-             charts = paste(c('column','stacked-column','percent-column'), collapse = ','),
-             labels = paste(tempRows[!tempRows %in% null_string], collapse = ','),
-             gin = paste(tempTable[!tempRows %in% null_string,"IN"], collapse = ','),
-             gout = paste(tempTable[!tempRows %in% null_string,"OUT"], collapse = ','),
+  return (list(method = gsub("\\'", "\\\\'", test$method),
+             pvalue = test$p.value,
+             charts = c('column','stacked-column','percent-column'),
+             labels = tempRows[!tempRows %in% null_string],
+             group_in = tempTable[!tempRows %in% null_string,"IN"],
+             group_out = tempTable[!tempRows %in% null_string,"OUT"],
              msg = '',
              status = 0))
 }
