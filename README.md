@@ -69,7 +69,7 @@ The Rnsippet test function returns an array of values - testMethods, pvalues, ch
 |labels|The labels that are to be used for the different groups tested, encoded as an array of strings.|
 |gin|The data included within the "in" group, encoded as an array. This is used to gather counts for the displayed chart.|
 |gout|The data included within the "out" group, encoded as an array. This is used to gather counts for the displayed chart.|
-|msg| The error message recieved during data processing, encoded as a string. If no error was encountered, return an empty string (i.e: "").|
+|msg| The error message received during data processing, encoded as a string. If no error was encountered, return an empty string (i.e: "").|
 |status|The value returned after the data was processed, encoded as a numeric. If no error occurred the value 0 is returned. Otherwise a value corresponding to the error that occurred is returned. A list of codes can be found below.|
 ##### Important Note
 If a fatal error occurred during data processing, return only an array containing the msg and status. If the statistical test was completed, return all values found in the table above.
