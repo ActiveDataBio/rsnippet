@@ -65,7 +65,7 @@ The Rnsippet test function returns an array of values - testMethods, pvalues, ch
 |:--------:|:-------:
 |testMethods|The name of the test used encoded as a string.|
 |pvalues|The p-value obtained with the statistical test, encoded as a double.|
-|charts|An array of the chart types, encoded as strings, that will be used to output the data. Chart type options can be found at http://www.highcharts.com/demo.|
+|charts|An array of the chart types, encoded as strings, which will be used to output the data. Chart type options can be found at http://www.highcharts.com/demo.|
 |labels|The labels that are to be used for the different groups tested, encoded as an array of strings.|
 |gin|The data included within the "in" group, encoded as an array. This is used to gather counts for the displayed chart.|
 |gout|The data included within the "out" group, encoded as an array. This is used to gather counts for the displayed chart.|
