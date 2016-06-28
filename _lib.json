@@ -12,7 +12,7 @@
 			"created":"06-01-2016",
 			"last_update":"06-21-2016",
 			"notes":"The chi-squared test of homogeneity is performed using the same method as the chi-squared test of independence. The null hypothesis for the chi-squared test of homogeneity is that the proportions between the two groups are the same, while the alternative is that they are different. The chi-squared test of independence is used when two samples are chosen, then measurements are taken. The chi-squared test of homogeneity is used when random subsets of particular groups are chosen (where groups are defined by a measure that has already been taken) and then another measurement is taken of a different variable. Lastly, this Rsnippet will calculate the expected cell frequencies of the contingency table and choose the appropriate test (chi-squared or Fisher's exact) for the data."
-		}
+		},
 		{
 			"name":"kaplan_meier.R",
 			"type":"time to event",
@@ -25,7 +25,7 @@
 			"created":"06-08-2016",
 			"last_update":"06-27-2016",
 			"notes":"This Rsnippet requieres the package \"survival\". Although data can be left censored, right censored, interval censored, or counted, this code is designed for right censored data. To change this, see documentation for \"Surv\" and \"survdiff\"."
-		}
+		},
 		{
 			"name":"t-test.R",
 			"type":"continuous",
@@ -38,7 +38,7 @@
 			"created":"06-03-2016",
 			"last_update":"06-14-2016",
 			"notes":""
-		}
+		},
 		{
 			"name":"wilcoxon.R",
 			"type":["coninuous","ordinal"],
