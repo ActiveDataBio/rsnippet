@@ -3,8 +3,10 @@
 		{
 			"name":"chisq_fisher.R",
 			"type":"categorical",
-			"short":"for comparison between two categorical variables",
-			"long":"The chi-squared test and Fisher's exact test are used when both variables being tested are categorical. The chi-squared test assumes that observations are not correlated and at least 80% of the expected cell counts of the contingency table are greater than 5. Fisher's exact t-test assumes that each observation only fits into one cell and that the row and column totals are fixed and not random. Both tests are used to test for independence between the two variables, but Fisher's exact t-test is used when sample sizes are small. The null hypothesis is that the proportions of one variable are independent of the other variable, while the alternative hypothesis is that the proportions of one variable are not independent of the other variable.",
+			"description":{
+				"short":"for comparison between two categorical variables",
+				"long":"The chi-squared test and Fisher's exact test are used when both variables being tested are categorical. The chi-squared test assumes that observations are not correlated and at least 80% of the expected cell counts of the contingency table are greater than 5. Fisher's exact t-test assumes that each observation only fits into one cell and that the row and column totals are fixed and not random. Both tests are used to test for independence between the two variables, but Fisher's exact t-test is used when sample sizes are small. The null hypothesis is that the proportions of one variable are independent of the other variable, while the alternative hypothesis is that the proportions of one variable are not independent of the other variable."
+			},
 			"data_format":"character or numeric",
 			"author":"Kaitlin Cornwell",
 			"created":"06-01-2016",
@@ -14,8 +16,10 @@
 		{
 			"name":"kaplan_meier.R",
 			"type":"time to event",
-			"short":"for comparison between time to event and categorical varaibles",
-			"long":"The Kaplan-Meier test is used with time-to-event (survival) data. This test is used to compare event times between multiple groups. It assumes that censoring is unrelated to prognosis, that survival probabilities are the same (regardless of early or late recruitment into the study), and that events happened at the times specified. The log-rank test is used to test for differences in survival times/probabilities calcualted using the Kaplan-Meier method. Data can be left, right, or interval censored censored to with this method, although this Rsnippet is for use with right censored data. The null hypothesis is that the two Kaplan-Meier curves are the same while the alternative hypothesis is that the two Kaplan-Meier curves are not the same.",
+			"description":{
+				"short":"for comparison between time to event and categorical varaibles",
+				"long":"The Kaplan-Meier test is used with time-to-event (survival) data. This test is used to compare event times between multiple groups. It assumes that censoring is unrelated to prognosis, that survival probabilities are the same (regardless of early or late recruitment into the study), and that events happened at the times specified. The log-rank test is used to test for differences in survival times/probabilities calcualted using the Kaplan-Meier method. Data can be left, right, or interval censored censored to with this method, although this Rsnippet is for use with right censored data. The null hypothesis is that the two Kaplan-Meier curves are the same while the alternative hypothesis is that the two Kaplan-Meier curves are not the same."
+			},
 			"data_format":"The meta data should be encoded as a string. The time to the event should be numeric with a letter appended on the end to indicate whether an event or censoring occured. Use \"a\" to indicate censoring and \"b\" to indicate the event occured. For example, the meta data should read \"208a\" or \"107b\".",
 			"author":"Kaitlin Cornwell",
 			"created":"06-08-2016",
@@ -25,8 +29,10 @@
 		{
 			"name":"t-test.R",
 			"type":"continuous",
-			"short":"for comparison between continuous and categorical variables",
-			"long":"The two-sample t-test is used when one variable is continuous and one variable is categorical with two groups. This test assumes that samples have been drawn from normally distributed popluations and that the popluations have equal variances. The two-sample t-test is used to test for differences in mean between the groups defined by the categorical variable. The null hypothesis is that the means are equal, while the alternative hypothesis is that the means are not equal. Since this test uses the mean, the two-sample t-test should not be chosen when the data has a large range or is signifcanly skewed.",
+			"description":{
+				"short":"for comparison between continuous and categorical variables",
+				"long":"The two-sample t-test is used when one variable is continuous and one variable is categorical with two groups. This test assumes that samples have been drawn from normally distributed popluations and that the popluations have equal variances. The two-sample t-test is used to test for differences in mean between the groups defined by the categorical variable. The null hypothesis is that the means are equal, while the alternative hypothesis is that the means are not equal. Since this test uses the mean, the two-sample t-test should not be chosen when the data has a large range or is signifcanly skewed."
+			},
 			"data_format":"numeric",
 			"author":"Kaitlin Cornwell",
 			"created":"06-03-2016",
@@ -36,8 +42,10 @@
 		{
 			"name":"wilcoxon.R",
 			"type":["coninuous","ordinal"],
-			"short:":"for comparison between continuous or ordinal and categorical varaibles",
-			"long":"The two sample Wilcoxon rank sum test is used as an alternative to the two-sample t-test when the data is not normally distributed, the sample size is small, or when one variable is ordinal. This test assumes that that one variable is either continuous or ordinal and one variable is categorical with two groups, that the groups within the categorical varaible are independent, and that observations are independent. The null hypothesis is that the groups are identically distributed while the alternative hypothesis is that the groups are not identically distributed. If the distributions of the two groups are not similar then the Wilcoxon rank sum test determines if the distributions are significantly different. If the two distributions are similar then the test determines if the medians of the two groups are significantly different.",
+			"description":{
+				"short:":"for comparison between continuous or ordinal and categorical varaibles",
+				"long":"The two sample Wilcoxon rank sum test is used as an alternative to the two-sample t-test when the data is not normally distributed, the sample size is small, or when one variable is ordinal. This test assumes that that one variable is either continuous or ordinal and one variable is categorical with two groups, that the groups within the categorical varaible are independent, and that observations are independent. The null hypothesis is that the groups are identically distributed while the alternative hypothesis is that the groups are not identically distributed. If the distributions of the two groups are not similar then the Wilcoxon rank sum test determines if the distributions are significantly different. If the two distributions are similar then the test determines if the medians of the two groups are significantly different."
+			},
 			"data_format:":"numeric",
 			"author":"Kaitlin Cornwell",
 			"created":"06-03-2016",
