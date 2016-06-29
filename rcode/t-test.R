@@ -143,10 +143,12 @@ test = function(meta, group, null_string) {
            alternative = "two.sided", var.equal = TRUE)
   }
   
-  return(list(method = gsub("\\'", "\\\\'", test$method),
+  return(list(method = test$method,#gsub("\\'", "\\\\'", test$method),
               pvalue = test$p.value,
-              charts = c('box','scatter'),
+              charts = c('box'),
               labels = '',
-              group_in = paste(meta_in, collapse = ','),
-              group_out = paste(meta_out, collapse = ',')))
+              group_in = meta_in,
+              group_out = meta_out,
+              msg = '',
+              status = 0))
 }
