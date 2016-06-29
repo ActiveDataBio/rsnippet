@@ -97,7 +97,7 @@
 			"file":"wilcoxon.R",
 			"type":["coninuous","ordinal"],
 			"description":{
-				"summary:":"For comparison between continuous or ordinal and categorical varaibles",
+				"summary":"For comparison between continuous or ordinal and categorical varaibles",
 				"detail":{
 					"information":"The Wilcoxon rank-sum test is used for comparison between one continuous or ordinal variable and a categorical variable.",
 					"assumption":"This test assumes that that one variable is either continuous or ordinal and one variable is categorical with two groups, that the groups within the categorical varaible are independent, and that observations are independent.",
@@ -105,7 +105,7 @@
 					"notes":"The two sample Wilcoxon rank sum test is used as an alternative to the two-sample t-test when the data is not normally distributed, the sample size is small, or when one variable is ordinal. If the distributions of the two groups are not similar then the Wilcoxon rank sum test determines if the distributions are significantly different. If the two distributions are similar then the test determines if the medians of the two groups are significantly different."
 				}
 			},
-			"data_format:":["numeric"],
+			"data_format":["numeric"],
 			"author": {
 				"name":"Kaitlin Cornwell",
 				"email":"kaitlin.cornwell@pnnl.gov",
