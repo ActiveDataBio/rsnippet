@@ -171,10 +171,6 @@ test = function(meta, group, null_string) {
               pvalue = (1 - pchisq(test$chisq, length(test$n) - 1)),
               charts = "kaplan",
               labels = '',
-              group_in = paste(c(paste(time[1:index], collapse = ','),
-                         paste(prob[1:index], collapse = ',')),
-                         collapse = ';'),
-              group_out = paste(c(paste(time[(index + 1):length(time)], collapse = ','),
-                          paste(prob[(index + 1):length(prob)], collapse = ',')),
-                          collapse = ';')))
+              group_in = c(time[1:index], prob[1:index]),
+              group_out = c(time[(index + 1):length(time)], prob[(index + 1):length(prob)])))
 }

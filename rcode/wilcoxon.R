@@ -128,10 +128,12 @@ test = function(meta, group, null_string) {
   
   test = wilcox.test(meta_in, meta_out, alternative = "two.sided")
   
-  return(list(method = gsub("\\'", "\\\\'", test$method),
+  return(list(method = test$method,#gsub("\\'", "\\\\'", test$method),
               pvalue = test$p.value,
-              charts = paste(c("box", "scatter"), collapse = ','),
+              charts = c('box'),
               labels = '',
-              group_in = paste(meta_in, collapse = ','),
-              group_out = paste(meta_out, collapse = ',')))
+              group_in = meta_in,
+              group_out = meta_out,
+              msg = '',
+              status = 0))
 }
