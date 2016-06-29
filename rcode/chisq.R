@@ -82,7 +82,7 @@ error <- function(meta, group, null_string) {
         return(list("Incorrect data type: received continuous instead of categorical", 3))
       }
       if (grepl("cellcount", e)) {
-        return(list("20% of cell counts are <5, user Fisher's test instead", 3))
+        return(list("20% of cell counts are <5, use Fisher's test instead", 3))
       }
     }
     return(list(e$message, 1))

@@ -76,7 +76,7 @@ error <- function(meta, group, null_string) {
         return(list("80% of cell counts are >5, use Chi-squared test instead", 3))
       }
     }
-    return(list(e, 1))
+    return(list(e$message, 1))
   })
   
   ## if length of return statement is 2 then an error occurred
