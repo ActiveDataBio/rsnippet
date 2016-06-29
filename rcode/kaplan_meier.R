@@ -171,6 +171,6 @@ test = function(meta, group, null_string) {
               pvalue = (1 - pchisq(test$chisq, length(test$n) - 1)),
               charts = "kaplan",
               labels = '',
-              group_in = c(time[1:index], prob[1:index]),
-              group_out = c(time[(index + 1):length(time)], prob[(index + 1):length(prob)])))
+              group_in = list(time=time[1:index], prob=prob[1:index]),
+              group_out = list(time=time[(index + 1):length(time)], prob=prob[(index + 1):length(prob)])))
 }
