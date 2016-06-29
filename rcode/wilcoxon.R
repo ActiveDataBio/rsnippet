@@ -128,10 +128,10 @@ test = function(meta, group, null_string) {
   
   test = wilcox.test(meta_in, meta_out, alternative = "two.sided")
   
-  return(list(testMethods = gsub("\\'", "\\\\'", test$method),
-           pvalues = test$p.value,
-           charts = paste(c("box", "scatter"), collapse = ','),
-           labels = '',
-           gin = paste(meta_in, collapse = ','),
-           gout = paste(meta_out, collapse = ',')))
+  return(list(method = gsub("\\'", "\\\\'", test$method),
+              pvalue = test$p.value,
+              charts = paste(c("box", "scatter"), collapse = ','),
+              labels = '',
+              group_in = paste(meta_in, collapse = ','),
+              group_out = paste(meta_out, collapse = ',')))
 }
