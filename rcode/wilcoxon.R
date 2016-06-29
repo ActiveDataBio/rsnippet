@@ -1,7 +1,7 @@
 # Title: Two sample Wilcoxon rank sum Test
 #
 # Uses: The two sample Wilcoxon rank sum test is used as an
-# alterantive to the two-sample t-test when the data is not
+# alternative to the two-sample t-test when the data is not
 # normally distributed, the sample size is small, or when one 
 # variable is ordinal. This test assumes that that one variable
 # is either continuous or ordinal and one variable is categorical
@@ -25,7 +25,7 @@
 # Notes: The two-sample Wilcoxon rank sum test is also known as the Mann-
 # Whitney U test.
 
-test <- function(meta, group, null_string) {
+error <- function(meta, group, null_string) {
   
   ret = tryCatch({
     if (is.null(meta)) {
@@ -75,39 +75,63 @@ test <- function(meta, group, null_string) {
     meta_in = rmmeta[group_index]
     meta_out = rmmeta[!group_index]
     
-    test = wilcox.test(meta_in, meta_out, alternative = "two.sided")
+    wilcox.test(meta_in, meta_out, alternative = "two.sided")
   },
   ## error handler function
   error = function (e) {
     if (grepl("Custom:", e)) {
       if(grepl("nullgroup", e)) {
-        return(c("No data in a group", 2))
+        return(list("No data in a group", 2))
       }
       if (grepl("null", e)) {
-        return(c("No meta data", 2))
+        return(list("No meta data", 2))
       }
       if (grepl("oneval", e)) {
-        return(c("Same value for each observation", 3))
+        return(list("Same value for each observation", 3))
       }
       if (grepl("type", e)) {
-        return(c("Incorrect data type: received character instead of continuous or ordinal", 3))
+        return(list("Incorrect data type: received character instead of continuous or ordinal", 3))
       }
     }
-    return(c(e, 1))
-})
+    return(list(e, 1))
+  })
   
   ## if length of return statement is 2 then an error occurred
   ## return the error message and code
   if (length(ret) == 2) {
-    return(c(msg = ret[1], status = ret[2]))
+    return(list(msg = ret[[1]], status = ret[[2]]))
+  } else {
+    return(list(msg = '', status = 0))
+  }
+}
+
+test = function(meta, group, null_string) {
+  if (!is.character(meta)) {
+    meta = as.character(meta)
   }
   
-  return(c(testMethods = gsub("\\'", "\\\\'", test$method),
-            pvalues = test$p.value,
-            charts = paste(c("box", "scatter"), collapse = ','),
-            labels = '',
-            gin = paste(meta_in, collapse = ','),
-            gout = paste(meta_out, collapse = ','),
-            msg = '',
-            code = 0))
+  ## remove missing values
+  mvidx = !(meta %in% null_string)
+  rmgroup = group[mvidx]
+  rmmeta = meta[mvidx]
+  rmmeta = as.numeric(rmmeta)
+  
+  ## Remove NAs
+  mvidx = (!is.na(rmmeta))
+  rmgroup = rmgroup[mvidx]
+  rmmeta = rmmeta[mvidx]
+  
+  ## separate into 'in' and 'out' groups
+  group_index = (rmgroup %in% "IN")
+  meta_in = rmmeta[group_index]
+  meta_out = rmmeta[!group_index]
+  
+  test = wilcox.test(meta_in, meta_out, alternative = "two.sided")
+  
+  return(list(testMethods = gsub("\\'", "\\\\'", test$method),
+           pvalues = test$p.value,
+           charts = paste(c("box", "scatter"), collapse = ','),
+           labels = '',
+           gin = paste(meta_in, collapse = ','),
+           gout = paste(meta_out, collapse = ',')))
 }

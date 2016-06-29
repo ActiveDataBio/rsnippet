@@ -1,17 +1,13 @@
-# Title: Chi-squared test or Fisher's exact test
+# Title: Chi-squared test
 #
-# Uses: The chi-squared test and Fisher's exact test are used when
-# both variables being tested are categorical. The chi-squared test
-# assumes that observations are not correlated and at least 80% of 
-# the expected cell counts of the contingency table are greater than
-# 5. Fisher's exact t-test assumes that each observation only fits
-# into one cell and that the row and column totals are fixed and not
-# random. Both tests are used to test for independence between the 
-# two variables, but Fisher's exact t-test is used when sample sizes
-# are small. The null hypothesis is that the proportions of one
-# variable are independent of the other variable, while the
-# alternative hypothesis is that the proportions of one variable are
-# not independent of the other variable.
+# Uses: The chi-squared test is used when both variables being tested
+# are categorical. The test assumes that observations are not correlated
+# and at least 80% of the expected cell counts of the contingency table
+# are greater than 5. It is used to test for independence between the 
+# two variables when sample sizes are large. The null hypothesis is
+# that the proportions of one variable are independent of the other
+# variable, while the alternative hypothesis is that the proportions
+# of one variable are not independent of the other variable.
 #
 # Data format: 
 #
@@ -28,11 +24,9 @@
 # are taken. The chi-squared test of homogeneity is used when random subsets
 # of particular groups are chosen (where groups are defined by a measure
 # that has already been taken) and then another measurement is taken of 
-# a different variable. Lastly, this Rsnippet will calculate the expected
-# cell frequencies of the contingency table and choose the appropriate test
-# (chi-squared or Fisher's exact) for the data.
+# a different variable.
 
-test <- function(meta, group, null_string) {
+error <- function(meta, group, null_string) {
   
   ret = tryCatch({
     
@@ -57,8 +51,6 @@ test <- function(meta, group, null_string) {
     }
     tempTable = table(rmmeta, rmgroup)
     
-    tempRows = rownames(tempTable)
-    
     ## Check data type
     if (dim(tempTable)[1] == 1) {
       stop("Custom: oneval")
@@ -69,7 +61,7 @@ test <- function(meta, group, null_string) {
     
     ## if >20% of expected frequences are <5 then use Fisher's exact test
     if (test_freq(length(rmmeta), tempTable) > .2) {
-      test = fisher.test(rmmeta, rmgroup)
+      stop("Custom: cellcount")
     } else {
       test = chisq.test(rmmeta, rmgroup)
     }
@@ -78,35 +70,53 @@ test <- function(meta, group, null_string) {
   error = function (e) {
     if (grepl("Custom:", e)) {
       if (grepl("nullgroup", e)) {
-        return(c("No data in a group", 2))
+        return(list("No data in a group", 2))
       }
       if (grepl("null", e)) {
-        return(c("No meta data", 2))
+        return(list("No meta data", 2))
       }
       if (grepl("oneval", e)) {
-        return(c("Same value for each observation", 3))
+        return(list("Same value for each observation", 3))
       }
       if (grepl("type", e)) {
-        return(c("Incorrect data type: received continuous instead of categorical", 3))
+        return(list("Incorrect data type: received continuous instead of categorical", 3))
+      }
+      if (grepl("cellcount", e)) {
+        return(list("20% of cell counts are <5, user Fisher's test instead", 3))
       }
     }
-    return(c(e, 1))
+    return(list(e, 1))
   })
   
   ## if length of return statement is 2 then an error occurred
   ## return the error message and code
   if (length(ret) == 2) {
-    return(c(msg = ret[1], status = ret[2]))
+    return(list(msg = ret[[1]], status = ret[[2]]))
+  } else {
+    return(list(msg = '', status = 0))
   }
+}
+
+test = function(meta, group, null_string) {
+  
+  ## change meta from factors to strings
+  meta = as.character(meta)
+  
+  ## remove missing values
+  mvidx = !(meta %in% null_string)
+  rmgroup = group[mvidx]
+  rmmeta = meta[mvidx]
+  tempTable = table(rmmeta, rmgroup)
+  tempRows = rownames(tempTable)
+  
+  test = chisq.test(rmmeta, rmgroup)
   
   return (list(method = gsub("\\'", "\\\\'", test$method),
-             pvalue = test$p.value,
-             charts = c('column','stacked-column','percent-column'),
-             labels = tempRows[!tempRows %in% null_string],
-             group_in = tempTable[!tempRows %in% null_string,"IN"],
-             group_out = tempTable[!tempRows %in% null_string,"OUT"],
-             msg = '',
-             status = 0))
+               pvalue = test$p.value,
+               charts = c('column','stacked-column','percent-column'),
+               labels = tempRows[!tempRows %in% null_string],
+               group_in = tempTable[!tempRows %in% null_string,"IN"],
+               group_out = tempTable[!tempRows %in% null_string,"OUT"]))
 }
 
 test_freq <- function(length, tempTable) {

@@ -8,7 +8,7 @@
 # differences in survival (or another event) times/probabilities calcualted
 # using the Kaplan- Meier method. Data can be left, right, or interval censored
 # censored to with this method, although this Rsnippet is for use with right
-# censored data. Meier method. The null hypothesis is that the two Kaplan-Meier
+# censored data. The null hypothesis is that the two Kaplan-Meier
 # curves are the same while the alternative hypothesis is that the two Kaplan-
 # Meier curves are not the same. 
 #
@@ -27,7 +27,7 @@
 # is designed for right censored data. To change this, see documentation for
 # "Surv" and "survdiff".
 
-test <- function(meta, group, null_string) {
+error <- function(meta, group, null_string) {
   ret = tryCatch({
     
     if (is.null(meta)) {
@@ -87,7 +87,7 @@ test <- function(meta, group, null_string) {
     meta_event = as.numeric(meta_event)
     
     ## Kaplan-Meier/log-rank test
-    test = survdiff(Surv(time = meta_time, event = meta_event, type = "right")
+    survdiff(Surv(time = meta_time, event = meta_event, type = "right")
                     ~ rmgroup, rho = 0)
   },
   ## error handler function
@@ -115,8 +115,47 @@ test <- function(meta, group, null_string) {
   ## if length of return statement is 2 then an error occurred
   ## return the error message and code
   if (length(ret) == 2) {
-    return(c(msg = ret[1], status = ret[2]))
+    return(list(msg = ret[[1]], status = ret[[2]]))
+  } else {
+    return(list(msg = '', status = 0))
   }
+}
+ 
+test = function(meta, group, null_string) { 
+  if (!is.character(meta)) {
+    meta = as.character(meta)
+  }
+  
+  ## remove missing values
+  mvidx = !(meta %in% null_string)
+  group = group[mvidx]
+  meta = meta[mvidx]
+  
+  ## separate the time from the coded event
+  meta_time = substring(meta, first = 1, last = nchar(meta) - 1)
+  meta_time = as.numeric(meta_time)
+  meta_event = substring(meta, first = nchar(meta))
+  
+  ## Remove NAs
+  mvidx = (!is.na(meta_time)) & ((meta_event %in% "a") | (meta_event %in% "b"))
+  meta_time = meta_time[mvidx]
+  meta_event = meta_event[mvidx]
+  rmgroup = group[mvidx]
+  
+  ## Change change event coding from "a" and "b" to 0 = censor and 1 = event
+  for (i in 1:length(meta_event)) {
+    if (meta_event[i] == "a") {
+      meta_event[i] = 0
+    }
+    else {
+      meta_event[i] = 1
+    }
+  }
+  meta_event = as.numeric(meta_event)
+  
+  ## Kaplan-Meier/log-rank test
+  test = survdiff(Surv(time = meta_time, event = meta_event, type = "right")
+           ~ rmgroup, rho = 0)
   
   ## get index where group switches from "in" to "out"
   fit = survfit(Surv(time = meta_time, event = meta_event, type = "right") ~ rmgroup)
@@ -128,7 +167,7 @@ test <- function(meta, group, null_string) {
     }
   }
   
-  return(c(testMethods = "Log-Rank Test for Survival Data",
+  return(list(testMethods = "Log-Rank Test for Survival Data",
            pvalues = (1 - pchisq(test$chisq, length(test$n) - 1)),
            charts = "kaplan",
            labels = '',
@@ -137,7 +176,5 @@ test <- function(meta, group, null_string) {
                        collapse = ';'),
            gout = paste(c(paste(time[(index + 1):length(time)], collapse = ','),
                           paste(prob[(index + 1):length(prob)], collapse = ',')),
-                        collapse = ';'),
-           msg = "",
-           status = 0))
+                        collapse = ';')))
 }

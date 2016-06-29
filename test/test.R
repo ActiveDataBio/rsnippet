@@ -27,4 +27,8 @@ source(snippet)
 
 # you can see your results if your snippet doesn't have any issue.
 # otherwise, you can see some error messages in console.
-result <- test(meta, group, null_string)
+result <- error(meta, group, null_string)
+if (result$status == 0) {
+  result <- test(meta, group, null_string)
+}
+result
