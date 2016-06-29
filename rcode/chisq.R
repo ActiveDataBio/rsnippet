@@ -85,7 +85,7 @@ error <- function(meta, group, null_string) {
         return(list("20% of cell counts are <5, user Fisher's test instead", 3))
       }
     }
-    return(list(e, 1))
+    return(list(e$message, 1))
   })
   
   ## if length of return statement is 2 then an error occurred
@@ -111,12 +111,14 @@ test = function(meta, group, null_string) {
   
   test = chisq.test(rmmeta, rmgroup)
   
-  return (list(method = gsub("\\'", "\\\\'", test$method),
+  return (list(method = test$method,#gsub("\\'", "\\\\'", test$method),
                pvalue = test$p.value,
                charts = c('column','stacked-column','percent-column'),
                labels = tempRows[!tempRows %in% null_string],
                group_in = tempTable[!tempRows %in% null_string,"IN"],
-               group_out = tempTable[!tempRows %in% null_string,"OUT"]))
+               group_out = tempTable[!tempRows %in% null_string,"OUT"],
+               msg = '',
+               status = 0))
 }
 
 test_freq <- function(length, tempTable) {
