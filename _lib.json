@@ -72,7 +72,7 @@
 		{
 			"name":"Two-sample t-test",
 			"file":"t-test.R",
-			"type":"continuous",
+			"type":["continuous"],
 			"description":{
 				"summary":"For comparison between continuous and categorical variables",
 				"detail": {
