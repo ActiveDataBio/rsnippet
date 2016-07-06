@@ -1,0 +1,1 @@
+Snippet <- setRefClass("Snippet", contains = "Data")
