@@ -46,11 +46,16 @@ error <- function(meta, group, null_string) {
     group = group[mvidx]
     meta = meta[mvidx]
     
-    
     ## separate the time from the coded event
     meta_time = substring(meta, first = 1, last = nchar(meta) - 1)
     meta_time = as.numeric(meta_time)
     meta_event = substring(meta, first = nchar(meta))
+    
+    negative = which(meta_time < 0)
+    for (i in 1:length(negative)) {
+      index = negative[i]
+      meta_time[index] = NA
+    }
     
     ## Remove NAs
     mvidx = (!is.na(meta_time)) & ((meta_event %in% "a") | (meta_event %in% "b"))
