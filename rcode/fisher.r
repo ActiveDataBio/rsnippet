@@ -5,9 +5,9 @@
 # only fits into one cell and that the row and column totals are fixed
 # and not random. It is used to test for independence between the two 
 # variables, when sample sizes are small. The null hypothesis is that
-# that the proportions of one varaible are independent of the other
-# variable, while the alternative hypothesis is that the proportions
-# of one variable are not independent of the other variable.
+# the proportions of one variable are independent of the other variable,
+# while the alternative hypothesis is that the proportions of one
+# variable are not independent of the other variable.
 #
 # Data format: character or numeric
 #

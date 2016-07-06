@@ -5,12 +5,11 @@
 # that censoring is unrelated to prognosis, that survival probabilities are 
 # the same (regardless of early or late recruitment into the study), and that
 # events happened at the times specified. The log-rank test is used to test for 
-# differences in survival (or another event) times/probabilities calcualted
-# using the Kaplan- Meier method. Data can be left, right, or interval censored
-# censored to with this method, although this Rsnippet is for use with right
-# censored data. The null hypothesis is that the two Kaplan-Meier
-# curves are the same while the alternative hypothesis is that the two Kaplan-
-# Meier curves are not the same. 
+# differences in survival (or another event) times/probabilities calculated
+# using the Kaplan- Meier method. Data can be left, right, or interval censored,
+# although this Rsnippet is for use with right censored data. The null
+# hypothesis is that the two Kaplan-Meier curves are the same while the
+# alternative hypothesis is that the two Kaplan-Meier curves are not the same.
 #
 # Data format: The meta data should be encoded as a string. The time to the
 # event should be numeric with a letter appended on the end to indicate
