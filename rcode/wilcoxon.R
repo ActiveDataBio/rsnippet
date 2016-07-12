@@ -6,7 +6,7 @@
 # variable is ordinal. This test assumes that that one variable
 # is either continuous or ordinal and one variable is categorical
 # with two groups, that the groups within the categorical
-# varaible are independent, and that observations are independent.
+# variable are independent, and that observations are independent.
 # The null hypothesis is that the groups are identically
 # distributed while the alternative hypothesis is that the groups
 # are not identically distributed. If the distributions of the

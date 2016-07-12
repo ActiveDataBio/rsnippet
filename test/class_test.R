@@ -7,9 +7,16 @@ Data <- setRefClass("Data", fields = c("meta", "group", "errors"),
                         initFields(meta = meta, group = group, errors = list("", 0))
                       },
                       
-                      ## error testing/handling function
-                      error = function() {
-                        errors[[1]] <<- "Error function not found"
+                      ## data cleaning and missing value handler function
+                      cleaning = function(null_string) {
+                        errors[[1]] <<- "Cleaning function not found"
+                        errors[[2]] <<- 2
+                        return(result(error = errors))
+                      },
+                      
+                      ## testing assumptions/requirements
+                      assumptions = function() {
+                        errors[[1]] <<- "Assumption testing function not found"
                         errors[[2]] <<- 2
                         return(result(error = errors))
                       },
@@ -71,11 +78,14 @@ group <- sample(c('IN','OUT'), length(meta), replace=TRUE)
 # define 'null' strings
 null_string <- c("","[Not Applicable]","[Not Available]","[Pending]","[]")
 
-snippet <- "T_test.R"
+snippet <- "rcode/t-test.R"
 source(snippet)
 
 vec = Snippet$new(meta, group)
-result = vec$error(null_string)
+result = vec$cleaning(null_string)
+if (result$status != 2) {
+  result = vec$assumptions()
+}
 if (result$status != 2) {
   result = vec$test()
 }
