@@ -95,7 +95,7 @@
 		{
 			"name":"Wilcoxon rank-sum test",
 			"file":"wilcoxon.R",
-			"type":["coninuous","ordinal"],
+			"type":["continuous","ordinal"],
 			"description":{
 				"summary":"For comparison between continuous or ordinal and categorical varaibles",
 				"detail":{
