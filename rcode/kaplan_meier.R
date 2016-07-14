@@ -26,155 +26,140 @@
 # is designed for right censored data. To change this, see documentation for
 # "Surv" and "survdiff".
 
-error <- function(meta, group, null_string) {
-  ret = tryCatch({
-    
-    if (is.null(meta)) {
-      stop("Custom: null")
-    }
-    
-    if (!is.character(meta)) {
-      meta = as.character(meta)
-    }
-    
-    ## remove missing values
-    mvidx = !(meta %in% null_string)
-    if (length(which(mvidx)) == 0) {
-      stop("Custom: null")
-    }
-    group = group[mvidx]
-    meta = meta[mvidx]
-    
-    ## separate the time from the coded event
-    meta_time = substring(meta, first = 1, last = nchar(meta) - 1)
-    meta_time = as.numeric(meta_time)
-    meta_event = substring(meta, first = nchar(meta))
-    
-    negative = which(meta_time < 0)
-    for (i in 1:length(negative)) {
-      index = negative[i]
-      meta_time[index] = NA
-    }
-    
-    ## Remove NAs
-    mvidx = (!is.na(meta_time)) & ((meta_event %in% "a") | (meta_event %in% "b"))
-    if (length(which(mvidx)) == 0) {
-      stop("Custom: coding")
-    }
-    meta_time = meta_time[mvidx]
-    meta_event = meta_event[mvidx]
-    rmgroup = group[mvidx]
-    
-    ## Check data
-    table = table(meta_time)
-    if (length(meta_time) == 0) {
-      stop("Custom: type")
-    }
-    
-    if (dim(table) == 1) {
-      stop("Custom: oneval")
-    }
-    if (length(which(rmgroup %in% "IN")) == 0 ||
-        length(which(rmgroup %in% "OUT")) == 0) {
-      stop("Custom: nullgroup")
-    }
-    
-    ## change event coding from "a" and "b" to 0 = censor and 1 = event
-    for (i in 1:length(meta_event)) {
-      if (meta_event[i] == "a") {
-        meta_event[i] = 0
-      }
-      else {
-        meta_event[i] = 1
-      }
-    }
-    meta_event = as.numeric(meta_event)
-    
-    ## Kaplan-Meier/log-rank test
-    survdiff(Surv(time = meta_time, event = meta_event, type = "right")
-                    ~ rmgroup, rho = 0)
-  },
-  ## error handler function
-  error = function (e) {
-    if (grepl("Custom:", e)) {
-      if (grepl("nullgroup", e)) {
-        return(c("No data in a group", 2))
-      }
-      if (grepl("null", e)) {
-        return(c("No meta data", 2))
-      }
-      if (grepl("oneval", e)) {
-        return(c("Same value for each observation", 3))
-      }
-      if (grepl("type", e)) {
-        return(c("Incorrect data type: received character instead of numeric for time", 3))
-      }
-      if (grepl("coding", e)) {
-        return(c("Incorrect coding: Time should be numeric with 'a' or 'b' appended", 3))
-      }
-    }
-    return(c(e, 1))
-  })
-  
-  ## if length of return statement is 2 then an error occurred
-  ## return the error message and code
-  if (length(ret) == 2) {
-    return(list(msg = ret[[1]], status = ret[[2]]))
-  } else {
-    return(list(msg = '', status = 0))
+Snippet <- setRefClass("Snippet", contains = "Data", fields = c("time", "event"),
+                       methods = list(
+                         cleaning = function(null_string) {
+                           tryCatch({
+                            ## initial read in
+                            read_check(meta)
+                            meta <<- as.character(meta)
+                           
+                            ## remove missing vlaues
+                            index = !(meta %in% null_string)
+                            missing_check(index)
+                            meta <<- meta[index]
+                            group <<- group[index]
+                           
+                            ## separate time from coded event
+                            time <<- substring(meta, first = 1, last = nchar(meta) - 1)
+                            time <<- as.numeric(time)
+                            event <<- substring(meta, first = nchar(meta))
+                           
+                            ## remove NAs
+                            index = (!is.na(time) & ((event %in% "a") | (event %in% "b")))
+                            event <<- event[index]
+                            time <<- time[index]
+                            group <<- group[index]
+                            group_check(time, group)
+                          },
+                          
+                          error = function(e) {
+                            e$message = gsub("\n", " ", e$message)
+                            errors <<- list(e$message, 2)
+                          },
+                          
+                          finally = {
+                            return(result(error = errors))
+                          })
+                         },
+                         
+                         assumptions = function() {
+                           tryCatch({
+                            value_check(meta)
+                           
+                            ## remove negative time values
+                            index = which(time >= 0)
+                            time <<- time[index]
+                            event <<- event[index]
+                            group <<- group[index]
+                            group_check(time, group)
+                            value_check(time)
+                           
+                            ## change coding from "a" and "b" to 0 = censor and 1 = time
+                            for (i in 1:length(event)) {
+                              if (event[i] == "a")
+                                event[i] <<- 0
+                              else
+                                event[i] <<- 1
+                            }
+                            event <<- as.numeric(event)
+                          },
+                          
+                          error = function(e) {
+                            e$message = gsub("\n", " ", e$message)
+                            errors <<- list(e$message, 2)
+                          },
+                          
+                          finally = {
+                            return(result(error = errors))
+                          })
+                         },
+                         
+                         test = function() {
+                           tryCatch({
+                            km_test = survdiff(Surv(time = time, event = event, type = "right")
+                                                ~ group, rho = 0)
+                            test = list(method = "Log-rank test for Survival Data",
+                                        p.value = (1 - pchisq(km_test$chisq, length(km_test$n) - 1)))
+                           
+                            ## get index wehre group switches from "in" to "out"
+                            fit = survfit(Surv(time = time, event = event, type = "right")
+                                          ~ group)
+                            times = summary(fit)$time
+                            prob = summary(fit)$surv
+                            index = 0
+                            for (i in 1:(length(times) - 1)) {
+                              if (times[i] > times[i + 1])
+                                index = i
+                            }
+                           
+                            return(result(test, c("kaplan"), "",
+                                          list(time = times[1:index], 
+                                                prob = prob[1:index]),
+                                          list(time = times[(index + 1):length(times)],
+                                                prob = prob[(index + 1):length(times)]),
+                                          errors))
+                          },
+                          
+                          error = function(e) {
+                            e$message = gsub("\n", " ", e$message)
+                            return(result(error = list(e$message, 2)))
+                          })
+                         }
+                       ))
+
+## Check if data was read in correctly
+read_check <- function(meta) {
+  if(is.null(meta)) {
+    stop("No meta data")
   }
+  return(NULL)
 }
- 
-test = function(meta, group, null_string) { 
-  if (!is.character(meta)) {
-    meta = as.character(meta)
+
+## Check if data still availabe after removal of missing values
+missing_check <- function(index) {
+  if (length(which(index)) == 0) {
+    stop("No meta data")
   }
-  
-  ## remove missing values
-  mvidx = !(meta %in% null_string)
-  group = group[mvidx]
-  meta = meta[mvidx]
-  
-  ## separate the time from the coded event
-  meta_time = substring(meta, first = 1, last = nchar(meta) - 1)
-  meta_time = as.numeric(meta_time)
-  meta_event = substring(meta, first = nchar(meta))
-  
-  ## Remove NAs
-  mvidx = (!is.na(meta_time)) & ((meta_event %in% "a") | (meta_event %in% "b"))
-  meta_time = meta_time[mvidx]
-  meta_event = meta_event[mvidx]
-  rmgroup = group[mvidx]
-  
-  ## Change change event coding from "a" and "b" to 0 = censor and 1 = event
-  for (i in 1:length(meta_event)) {
-    if (meta_event[i] == "a") {
-      meta_event[i] = 0
-    }
-    else {
-      meta_event[i] = 1
-    }
+  return(NULL)
+}
+
+## Check if there are observations in each group
+group_check <- function(meta, group) {
+  if (length(meta) == 0) {
+    stop("Incorrect coding")
   }
-  meta_event = as.numeric(meta_event)
-  
-  ## Kaplan-Meier/log-rank test
-  test = survdiff(Surv(time = meta_time, event = meta_event, type = "right")
-           ~ rmgroup, rho = 0)
-  
-  ## get index where group switches from "in" to "out"
-  fit = survfit(Surv(time = meta_time, event = meta_event, type = "right") ~ rmgroup)
-  time = summary(fit)$time
-  prob = summary(fit)$surv
-  for (i in 1:(length(time) - 1)) {
-    if (time[i] > time[i + 1]) {
-      index = i
-    }
+  if (length(which(group %in% "IN")) == 0 || 
+      length(which(group %in% "OUT")) == 0) {
+    stop("No data in one group")
   }
-  
-  return(list(method = "Log-Rank Test for Survival Data",
-              pvalue = (1 - pchisq(test$chisq, length(test$n) - 1)),
-              charts = "kaplan",
-              labels = '',
-              group_in = list(time=time[1:index], prob=prob[1:index]),
-              group_out = list(time=time[(index + 1):length(time)], prob=prob[(index + 1):length(prob)])))
+  return("NULL")
+}
+
+## Check data is not constant
+value_check <- function(meta) {
+  datatable = table(meta)
+  if (dim(datatable) == 1)
+    stop("Data is constant")
+  return(NULL)
 }

@@ -25,115 +25,115 @@
 # Notes: The two-sample Wilcoxon rank sum test is also known as the Mann-
 # Whitney U test.
 
-error <- function(meta, group, null_string) {
-  
-  ret = tryCatch({
-    if (is.null(meta)) {
-      stop("Custom: null")
-    }
-    
-    if (!is.character(meta)) {
-      meta = as.character(meta)
-    }
-    
-    ## Remove missing values
-    mvidx = !(meta %in% null_string)
-    if (length(which(mvidx)) == 0) {
-      stop("Custom: null")
-    }
-    rmgroup = group[mvidx]
-    rmmeta = meta[mvidx]
-    rmmeta = as.numeric(rmmeta)
-    
-    ## Remove NAs
-    mvidx = (!is.na(rmmeta))
-    rmgroup = rmgroup[mvidx]
-    rmmeta = rmmeta[mvidx]
-    
-    ## Check data
-    if (length(rmmeta) == 0) {
-      stop("Custom: type")
-    }
-    if (length(which(rmgroup %in% "IN")) == 0 ||
-        length(which(rmgroup %in% "OUT")) == 0) {
-      stop("Custom: nullgroup")
-    }
-    
-    ## Check data type
-    table = table(rmmeta)
-    if (dim(table) == 1) {
-      stop("Custom: oneval")
-    }
-    for (i in 1:dim(table)) {
-      if (table[[i]] > (.2 * length(rmmeta))) {
-        stop("Custom: type")
-      }
-    }
-    
-    ## Separate into "in" and "out" groups
-    group_index = (rmgroup %in% "IN")
-    meta_in = rmmeta[group_index]
-    meta_out = rmmeta[!group_index]
-    
-    wilcox.test(meta_in, meta_out, alternative = "two.sided")
-  },
-  ## error handler function
-  error = function (e) {
-    if (grepl("Custom:", e)) {
-      if(grepl("nullgroup", e)) {
-        return(list("No data in a group", 2))
-      }
-      if (grepl("null", e)) {
-        return(list("No meta data", 2))
-      }
-      if (grepl("oneval", e)) {
-        return(list("Same value for each observation", 3))
-      }
-      if (grepl("type", e)) {
-        return(list("Incorrect data type: received character instead of continuous or ordinal", 3))
-      }
-    }
-    return(list(e, 1))
-  })
-  
-  ## if length of return statement is 2 then an error occurred
-  ## return the error message and code
-  if (length(ret) == 2) {
-    return(list(msg = ret[[1]], status = ret[[2]]))
-  } else {
-    return(list(msg = '', status = 0))
+Snippet <- setRefClass("Snippet", contains = "Data", fields = c("meta_in", "meta_out"),
+                       methods = list(
+                         
+                         ## Missing values handler function
+                         cleaning = function(null_string) {
+                           tryCatch({
+                             
+                             ## initial read in
+                             read_check(meta)
+                             meta <<- as.character(meta)
+                             
+                             ## remove missing values
+                             index = !(meta %in% null_string)
+                             missing_check(index)
+                             group <<- group[index]
+                             meta <<- meta[index]
+                             
+                             ## change to numeric form
+                             meta <<- as.numeric(meta)
+                             index = !(is.na(meta))
+                             group <<- group[index]
+                             meta <<- meta[index]
+                             group_check(meta, group)
+                          },
+                          
+                          error = function(e) {
+                            e$message = gsub("\n", " ", e$message)
+                            errors <<- list(e$message, 2)
+                          },
+                          
+                          finally = {
+                            return(result(error = errors))
+                          })
+                         },
+                         
+                         ## Assumption checking
+                         assumptions = function() {
+                           
+                           tryCatch({
+                            value_check(meta)
+                           
+                            ## split the data across "in" and "out" groups
+                            group_index = (group %in% "IN")
+                            meta_in <<- meta[group_index]
+                            meta_out <<- meta[!group_index]
+                           },   
+                           
+                           error = function(e) {
+                             e$message = gsub("\n", " ", e$message)
+                             errors <<- list(e$message, 2)
+                           }, 
+                           
+                           finally = {
+                             return(result(error = errors))
+                           })   
+                          },
+                         
+                         test = function() {
+                           tryCatch({
+                             test = wilcox.test(meta_in, meta_out, 
+                                                alternative = "two.sided")
+                             
+                             return(result(test, c("box"),
+                                           "", meta_in, meta_out, errors))
+                             
+                           },
+                           
+                           ## Statistical test
+                           error = function(e) {
+                             e$message = gsub("\n", " ", e$message)
+                             return(result(error = list(e$message, 2)))
+                           })
+                         }
+                       ))
+
+
+
+## Check if data was read in correctly
+read_check <- function(meta) {
+  if(is.null(meta)) {
+    stop("No meta data")
   }
+  return(NULL)
 }
 
-test = function(meta, group, null_string) {
-  if (!is.character(meta)) {
-    meta = as.character(meta)
+## Check if data still availabe after removal of missing values
+missing_check <- function(index) {
+  if (length(which(index)) == 0) {
+    stop("No meta data")
   }
-  
-  ## remove missing values
-  mvidx = !(meta %in% null_string)
-  rmgroup = group[mvidx]
-  rmmeta = meta[mvidx]
-  rmmeta = as.numeric(rmmeta)
-  
-  ## Remove NAs
-  mvidx = (!is.na(rmmeta))
-  rmgroup = rmgroup[mvidx]
-  rmmeta = rmmeta[mvidx]
-  
-  ## separate into 'in' and 'out' groups
-  group_index = (rmgroup %in% "IN")
-  meta_in = rmmeta[group_index]
-  meta_out = rmmeta[!group_index]
-  
-  test = wilcox.test(meta_in, meta_out, alternative = "two.sided")
-  
-  return(list(method = test$method,#gsub("\\'", "\\\\'", test$method),
-              pvalue = test$p.value,
-              charts = c('box'),
-              labels = '',
-              group_in = meta_in,
-              group_out = meta_out,
-              msg = '',
-              status = 0))
+  return(NULL)
+}
+
+## Check if there are observations in each group
+group_check <- function(meta, group) {
+  if (length(meta) == 0) {
+    stop("Incorrect data type: need numeric data")
+  }
+  if (length(which(group %in% "IN")) == 0 || 
+      length(which(group %in% "OUT")) == 0) {
+    stop("No data in one group")
+  }
+  return("NULL")
+}
+
+## Check data is not constant
+value_check <- function(meta) {
+  datatable = table(meta)
+  if (dim(datatable) == 1)
+    stop("Data is constant")
+  return(NULL)
 }

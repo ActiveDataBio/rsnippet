@@ -17,128 +17,121 @@
 #
 # Notes: 
 
-error <- function(meta, group, null_string) {
-  
-  ret = tryCatch({
-    
-    ## check data type
-    if (is.null(meta)) {
-      stop("Custom: null")
-    }
-    
-    ## change meta from factors to strings
-    meta = as.character(meta)
-    
-    ## remove missing values
-    mvidx = !(meta %in% null_string)
-    if (length(which(mvidx)) == 0) {
-      stop("Custom: null")
-    }
-    rmgroup = group[mvidx]
-    rmmeta = meta[mvidx]
-    if (length(which(rmgroup %in% "IN")) == 0 ||
-        length(which(rmgroup %in% "OUT")) == 0) {
-      stop("Custom: nullgroup")
-    }
-    tempTable = table(rmmeta, rmgroup)
-    
-    ## Check data type
-    if (dim(tempTable)[1] == 1) {
-      stop("Custom: oneval")
-    }
-    if (dim(tempTable)[1] > ceiling(.75 * length(rmmeta))) {
-      stop("Custom: type")
-    }
-    
-    ## if >20% of expected frequences are <5 then use Fisher's exact test
-    if (test_freq(length(rmmeta), tempTable) > .2) {
-      fisher.test(rmmeta, rmgroup)
-    } else {
-      stop("Custom: cellcount")
-    }
-  },
-  ## error handler function
-  error = function (e) {
-    if (grepl("Custom:", e)) {
-      if (grepl("nullgroup", e)) {
-        return(list("No data in a group", 2))
-      }
-      if (grepl("null", e)) {
-        return(list("No meta data", 2))
-      }
-      if (grepl("oneval", e)) {
-        return(list("Same value for each observation", 3))
-      }
-      if (grepl("type", e)) {
-        return(list("Incorrect data type: received continuous instead of categorical", 3))
-      }
-      if(grepl("cellcount", e)) {
-        return(list("80% of cell counts are >5, use Chi-squared test instead", 3))
-      }
-    }
-    return(list(e$message, 1))
-  })
-  
-  ## if length of return statement is 2 then an error occurred
-  ## return the error message and code
-  if (length(ret) == 2) {
-    return(list(msg = ret[[1]], status = ret[[2]]))
-  } else {
-    return(list(msg = '', status = 0))
+
+Snippet <- setRefClass("Snippet", contains = "Data", fields = "datatable",
+                       methods = list(
+                         ## Missing value handler function
+                         cleaning = function(null_string) {
+                           tryCatch({
+                            ## initial read in
+                            read_check(meta)
+                            meta <<- as.character(meta)
+                           
+                            ## remove missing values
+                            index = !(meta %in% null_string)
+                            missing_check(index)
+                            group <<- group[index]
+                            meta <<- meta[index]
+                            group_check(group)
+                         },
+                         
+                         error = function(e) {
+                           e$message = gsub("\n", " ", e$message)
+                           errors <<- list(e$message, 2)
+                         },
+                         
+                         finally = {
+                           return(result(error = errors))
+                         }) 
+                        },
+                        
+                        assumptions = function() {
+                          tryCatch ({
+                            datatable <<- table(meta, group)
+                            value_check(datatable)
+                            if (!is.null(freq_check(datatable, length(meta)))) {
+                              errors <<- c(errors, 
+                                           list("At least 80% of the expected counts are >5", 1))
+                              }
+                            },
+                          
+                          error = function(e) {
+                            e$message = gsub("\n", " ", e$message)
+                            errors <<- list(e$message, 2)
+                          },
+                          
+                          finally = {
+                            return(result(error = errors))
+                          })
+                        },
+                        
+                        test = function() {
+                          tryCatch({
+                            test = fisher.test(meta, group)
+                            rows = rownames(datatable)
+                            return(result(test, c("column", "stacked-column", "percent-column"),
+                                          rows[!rows %in% null_string],
+                                          datatable[!rows %in% null_string, "IN"],
+                                          datatable[!rows %in% null_string, "OUT"],
+                                          errors))
+                          },
+                          
+                          error = function(e) {
+                            e$message = gsub("\n", " ", e$message)
+                            return(result(error = list(e$message, 2)))
+                          })
+                        }
+                      ))
+
+read_check <- function(meta) {
+  if (is.null(meta))
+    stop("No meta data")
+  return(NULL)
+}
+
+missing_check <- function(index) {
+  if (length(which(index)) == 0)
+    stop("No meta data")
+  return(NULL)
+}
+
+group_check <- function(group) {
+  if (length(which(group %in% "IN")) == 0 ||
+      length(which(group %in% "OUT")) == 0) {
+    stop("No data in one group")
   }
-  
+  return(NULL)
 }
 
-test = function(meta, group, null_string) {  
-  
-  ## change meta from factors to strings
-  meta = as.character(meta)
-  
-  ## remove missing values
-  mvidx = !(meta %in% null_string)
-  rmgroup = group[mvidx]
-  rmmeta = meta[mvidx]
-  
-  tempTable = table(rmmeta, rmgroup)
-  tempRows = rownames(tempTable)
-  
-  test = fisher.test(rmmeta, rmgroup)
-  
-  return (list(method = test$method,#gsub("\\'","\\\\'", test$method),
-               pvalue = test$p.value,
-               charts = c('column','stacked-column','percent-column'),
-               labels = tempRows[!tempRows %in% null_string],
-               group_in = tempTable[!tempRows %in% null_string,"IN"],
-               group_out = tempTable[!tempRows %in% null_string,"OUT"],
-               msg = '',
-               status = 0))
+value_check <- function(datatable) {
+  if (dim(datatable)[1] == 1)
+    stop("Same value for each observation")
 }
 
-test_freq <- function(length, tempTable) {
+freq_check <- function(datatable, length) {
   ## find row and column sums
   row_sums = vector(mode = "numeric", length = 0)
-  for (i in 1:dim(tempTable)[1]) {
-    row_sums = c(row_sums, sum(tempTable[i,]))
+  for (i in 1:dim(datatable)[1]) {
+    row_sums = c(row_sums, sum(datatable[i,]))
   }
   col_sums = vector(mode = "numeric", length = 0)
-  for (j in 1:dim(tempTable)[2]) {
-    col_sums = c(col_sums, sum(tempTable[,j]))
+  for (j in 1:dim(datatable)[2]) {
+    col_sums = c(col_sums, sum(datatable[,j]))
   }
   
   ## find expected frequencies to test assumptions and count number of 
   ## expected frequences <5
-  ex_freq = matrix(data = NA, nrow = dim(row(tempTable))[1], ncol = 2)
   count = 0
   
-  for (i in 1:dim(tempTable)[1]) {
-    for (j in 1:dim(tempTable)[2]) {
-      ex_freq[i,j] = (row_sums[i] * col_sums[j])/length
-      if (ex_freq[i,j] < 5) {
+  for (i in 1:dim(datatable)[1]) {
+    for (j in 1:dim(datatable)[2]) {
+      if (((row_sums[i] * col_sums[j])/length) > 5)
         count = count + 1
-      }
     }
   }
   
-  ## return percentage of expected frequences <5
-  return (count/(dim(tempTable)[1] * dim(tempTable)[2]))
+  ## return percentage of expected frequences >5
+  if ((count/(dim(datatable)[1] * dim(datatable)[2])) > .8)
+    return("chisq")
+  return(NULL)
 }

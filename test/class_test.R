@@ -68,10 +68,10 @@ metaconfig <- metadata[grep('#', metadata$id),]
 metadata <- metadata[-grep('#', metadata$id),]
 
 # select the column you want
-meta <- fixFactor(metadata$tissue_source_site)
+meta1 <- fixFactor(metadata$K.M.Column)
 
 # group (randomly generated or select a group)
-group <- sample(c('IN','OUT'), length(meta), replace=TRUE)
+group1 <- sample(c('IN','OUT'), length(meta), replace=TRUE)
 #group <- rep('OUT', length(meta))
 #group[which(metadata$group=="E")] <- 'IN'
 
@@ -81,7 +81,7 @@ null_string <- c("","[Not Applicable]","[Not Available]","[Pending]","[]")
 snippet <- "rcode/t-test.R"
 source(snippet)
 
-vec = Snippet$new(meta, group)
+vec = Snippet$new(meta1, group1)
 result = vec$cleaning(null_string)
 if (result$status != 2) {
   result = vec$assumptions()

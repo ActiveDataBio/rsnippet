@@ -43,6 +43,7 @@ Snippet <- setRefClass("Snippet", contains = "Data",
                              },
                              
                              error = function(e) {
+                               e$message = gsub("\n", " ", e$message)
                                errors <<- list(e$message, 2)
                              },
                              
@@ -51,10 +52,12 @@ Snippet <- setRefClass("Snippet", contains = "Data",
                              })
                          },
                          
-                         ## Error checking
+                         ## Assumption checking
                          assumptions = function() {
                            try = tryCatch ({
-                           
+                            
+                            value_check(meta)
+                             
                             ## split data into in and out groups
                             group_index = (group %in% "IN")
                             meta_in <<- meta[group_index]
@@ -68,6 +71,7 @@ Snippet <- setRefClass("Snippet", contains = "Data",
                            }, 
                            
                            error = function(e) {
+                             e$message = gsub("\n", " ", e$message)
                              errors <<- list(e$message, 2)
                            },
                            
@@ -92,10 +96,10 @@ Snippet <- setRefClass("Snippet", contains = "Data",
                            },
                            
                            error = function(e) {
-                             return(result(error = errors))
+                             e$message = gsub("\n", " ", e$message)
+                             return(result(error = list(e$message, 2)))
                            })
                        }))
-
 
 ## Check if data was read in correctly
 read_check <- function(meta) {
@@ -120,9 +124,17 @@ group_check <- function(meta, group) {
   }
   if (length(which(group %in% "IN")) == 0 || 
       length(which(group %in% "OUT")) == 0) {
-    stop("No data in one or more groups")
+    stop("No data in one group")
   }
   return("NULL")
+}
+
+## Check data is not constant
+value_check <- function(meta) {
+  datatable = table(meta)
+  if (dim(datatable) == 1)
+    stop("Data is constant")
+  return(NULL)
 }
 
 ## Check normality assumption
