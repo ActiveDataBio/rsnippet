@@ -45,9 +45,10 @@ Snippet <- setRefClass("Snippet", contains = "Data", fields = c("meta_in", "meta
                              ## change to numeric form
                              meta <<- as.numeric(meta)
                              index = !(is.na(meta))
+                             missing_check(index)
                              group <<- group[index]
                              meta <<- meta[index]
-                             group_check(meta, group)
+                             group_check(group)
                           },
                           
                           error = function(e) {
@@ -64,7 +65,7 @@ Snippet <- setRefClass("Snippet", contains = "Data", fields = c("meta_in", "meta
                          assumptions = function() {
                            
                            tryCatch({
-                            value_check(meta)
+                            value_check(meta, group)
                            
                             ## split the data across "in" and "out" groups
                             group_index = (group %in% "IN")
@@ -99,41 +100,3 @@ Snippet <- setRefClass("Snippet", contains = "Data", fields = c("meta_in", "meta
                            })
                          }
                        ))
-
-
-
-## Check if data was read in correctly
-read_check <- function(meta) {
-  if(is.null(meta)) {
-    stop("No meta data")
-  }
-  return(NULL)
-}
-
-## Check if data still availabe after removal of missing values
-missing_check <- function(index) {
-  if (length(which(index)) == 0) {
-    stop("No meta data")
-  }
-  return(NULL)
-}
-
-## Check if there are observations in each group
-group_check <- function(meta, group) {
-  if (length(meta) == 0) {
-    stop("Incorrect data type: need numeric data")
-  }
-  if (length(which(group %in% "IN")) == 0 || 
-      length(which(group %in% "OUT")) == 0) {
-    stop("No data in one group")
-  }
-  return("NULL")
-}
-
-## Check data is not constant
-value_check <- function(meta) {
-  datatable = table(meta)
-  if (dim(datatable) == 1)
-    stop("Data is constant")
-  return(NULL)
-}

@@ -60,7 +60,7 @@ Snippet <- setRefClass("Snippet", contains = "Data", fields = "datatable",
                              
                              ## check expected values
                              datatable <<- table(meta, group)
-                             value_check(datatable)
+                             value_check(meta, group)
                              if (!is.null(freq_check(datatable, length(meta)))) {
                                errors <<- c(errors, list("At least 20% of the expected counts are <5",
                                                          1))
@@ -97,36 +97,6 @@ Snippet <- setRefClass("Snippet", contains = "Data", fields = "datatable",
                          }
                        ))
 
-
-## Check if data was read in correctly
-read_check <- function(meta) {
-  if (is.null(meta))
-    stop("No meta data")
-  return(NULL)
-}
-
-## Check if data still available after removal of missing values
-missing_check <- function(index) {
-  if (length(which(index)) == 0)
-    stop("No meta data")
-  return(NULL)
-}
-
-## Check if there are observations in each group
-group_check <- function(group) {
-  if(length(which(group %in% "IN")) == 0 ||
-     length(which(group %in% "OUT")) == 0) {
-    stop("No data in one group")
-  }
-  return(NULL)
-}
-
-## Check data is not constant
-value_check <- function(datatable) {
-  if (dim(datatable)[1] == 1)
-    stop("Same value for each observation")
-  return(NULL)
-}
 
 ## Check expected frequency assumption
 freq_check <- function(datatable, length) {

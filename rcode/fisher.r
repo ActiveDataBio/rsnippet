@@ -47,8 +47,8 @@ Snippet <- setRefClass("Snippet", contains = "Data", fields = "datatable",
                         
                         assumptions = function() {
                           tryCatch ({
+                            value_check(meta, group)
                             datatable <<- table(meta, group)
-                            value_check(datatable)
                             if (!is.null(freq_check(datatable, length(meta)))) {
                               errors <<- c(errors, 
                                            list("At least 80% of the expected counts are >5", 1))
@@ -83,30 +83,6 @@ Snippet <- setRefClass("Snippet", contains = "Data", fields = "datatable",
                         }
                       ))
 
-read_check <- function(meta) {
-  if (is.null(meta))
-    stop("No meta data")
-  return(NULL)
-}
-
-missing_check <- function(index) {
-  if (length(which(index)) == 0)
-    stop("No meta data")
-  return(NULL)
-}
-
-group_check <- function(group) {
-  if (length(which(group %in% "IN")) == 0 ||
-      length(which(group %in% "OUT")) == 0) {
-    stop("No data in one group")
-  }
-  return(NULL)
-}
-
-value_check <- function(datatable) {
-  if (dim(datatable)[1] == 1)
-    stop("Same value for each observation")
-}
 
 freq_check <- function(datatable, length) {
   ## find row and column sums

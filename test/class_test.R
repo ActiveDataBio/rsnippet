@@ -55,6 +55,37 @@ Data <- setRefClass("Data", fields = c("meta", "group", "errors"),
                                     group_out = g_out,
                                     msg = unlist(messages),
                                     status = code))
+                      },
+                      
+                      ## Check if data was read in correctly
+                      read_check = function(meta) {
+                        if (is.null(meta))
+                          stop("No meta data")
+                        return(NULL)
+                      },
+                      
+                      ## Check if data still available after removal of missing values
+                      missing_check = function(index) {
+                        if (length(which(index)) == 0)
+                          stop("No meta data")
+                        return(NULL)
+                      },
+                      
+                      ## Check if there are observations in each group
+                      group_check = function(group) {
+                        if(length(which(group %in% "IN")) == 0 ||
+                           length(which(group %in% "OUT")) == 0) {
+                          stop("No data in one group")
+                        }
+                        return(NULL)
+                      },
+                      
+                      ## Check data is not constant
+                      value_check = function(meta, group) {
+                        datatable = table(meta, group)
+                        if (dim(datatable)[1] == 1)
+                          stop("Same value for each observation")
+                        return(NULL)
                       }
                     ))
 
@@ -68,20 +99,20 @@ metaconfig <- metadata[grep('#', metadata$id),]
 metadata <- metadata[-grep('#', metadata$id),]
 
 # select the column you want
-meta1 <- fixFactor(metadata$K.M.Column)
+meta <- fixFactor(metadata$PlatinumFreeInterval)
 
 # group (randomly generated or select a group)
-group1 <- sample(c('IN','OUT'), length(meta), replace=TRUE)
+group <- sample(c('IN','OUT'), length(meta), replace=TRUE)
 #group <- rep('OUT', length(meta))
 #group[which(metadata$group=="E")] <- 'IN'
 
 # define 'null' strings
 null_string <- c("","[Not Applicable]","[Not Available]","[Pending]","[]")
 
-snippet <- "rcode/t-test.R"
+snippet <- "rcode/wilcoxon.R"
 source(snippet)
 
-vec = Snippet$new(meta1, group1)
+vec = Snippet$new(meta, group)
 result = vec$cleaning(null_string)
 if (result$status != 2) {
   result = vec$assumptions()

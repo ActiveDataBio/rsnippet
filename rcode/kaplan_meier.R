@@ -47,10 +47,12 @@ Snippet <- setRefClass("Snippet", contains = "Data", fields = c("time", "event")
                            
                             ## remove NAs
                             index = (!is.na(time) & ((event %in% "a") | (event %in% "b")))
+                            coding_check(index)
                             event <<- event[index]
                             time <<- time[index]
                             group <<- group[index]
-                            group_check(time, group)
+                            meta <<- meta[index]
+                            group_check(group)
                           },
                           
                           error = function(e) {
@@ -65,17 +67,21 @@ Snippet <- setRefClass("Snippet", contains = "Data", fields = c("time", "event")
                          
                          assumptions = function() {
                            tryCatch({
-                            value_check(meta)
+                            value_check(meta, group)
                            
                             ## remove negative time values
                             index = which(time >= 0)
+                            meta <<- meta[index]
                             time <<- time[index]
                             event <<- event[index]
                             group <<- group[index]
-                            group_check(time, group)
-                            value_check(time)
-                           
-                            ## change coding from "a" and "b" to 0 = censor and 1 = time
+                            group_check(group)
+                            value_check(meta, group)
+                            
+                            ## check number of events per group
+                            events_check(event, group)
+                            
+                            ## change coding from "a" and "b" to 0 = censor and 1 = event
                             for (i in 1:length(event)) {
                               if (event[i] == "a")
                                 event[i] <<- 0
@@ -107,11 +113,9 @@ Snippet <- setRefClass("Snippet", contains = "Data", fields = c("time", "event")
                                           ~ group)
                             times = summary(fit)$time
                             prob = summary(fit)$surv
-                            index = 0
-                            for (i in 1:(length(times) - 1)) {
-                              if (times[i] > times[i + 1])
-                                index = i
-                            }
+                            
+                            event_in = event[group %in% "IN"]
+                            index = length(which(event_in %in% 1))
                            
                             return(result(test, c("kaplan"), "",
                                           list(time = times[1:index], 
@@ -128,38 +132,20 @@ Snippet <- setRefClass("Snippet", contains = "Data", fields = c("time", "event")
                          }
                        ))
 
-## Check if data was read in correctly
-read_check <- function(meta) {
-  if(is.null(meta)) {
-    stop("No meta data")
-  }
-  return(NULL)
-}
-
-## Check if data still availabe after removal of missing values
-missing_check <- function(index) {
+coding_check = function(index) {
   if (length(which(index)) == 0) {
-    stop("No meta data")
-  }
-  return(NULL)
-}
-
-## Check if there are observations in each group
-group_check <- function(meta, group) {
-  if (length(meta) == 0) {
     stop("Incorrect coding")
   }
-  if (length(which(group %in% "IN")) == 0 || 
-      length(which(group %in% "OUT")) == 0) {
-    stop("No data in one group")
-  }
-  return("NULL")
+  return(NULL)
 }
 
-## Check data is not constant
-value_check <- function(meta) {
-  datatable = table(meta)
-  if (dim(datatable) == 1)
-    stop("Data is constant")
+events_check = function(event, group) {
+  event_in = event[group %in% "IN"]
+  event_out = event[group %in% "OUT"]
+  
+  if (length(which(event_in == "b")) == 0 ||
+      length(which(event_out == "b")) == 0) {
+    stop("No events for one group")
+  }
   return(NULL)
 }
