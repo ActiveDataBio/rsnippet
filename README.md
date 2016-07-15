@@ -33,7 +33,7 @@ The header should follow the format of the example below:
 
 <!--rsnippet-basic info-->
 ## Code Format
-Rsnippets are required to be written in R. They define a reference type class which takes in data and performs a statistical test. The coding of the data is defined by the writer of the test, but all outputs must follow the same format (as defined below in The User Defined Class: Snippet -> Return Values). If the writer plans on using their Rsnippet with the ADBio program server, as opposed solely using their local machine, they are restricted to the Rpackages already used by the server.
+Rsnippets are required to be written in R. Using reference classes, they define a class which takes in data and performs a statistical test. The coding used for the data is defined by the writer of the test, but all outputs must follow the same format (as defined below in The User Defined Class: Snippet -> Return Values). If the writer plans on using their Rsnippet with the ADBio program server, as opposed solely using their local machine, they are restricted to the Rpackages already used by the server.
 
 ##### Accepted R Packages
 * base
@@ -47,12 +47,16 @@ Rsnippets are required to be written in R. They define a reference type class wh
 * bioconductor
 
 ##### Reference Classes
-As noted above, the classes utilized within the Rsnippets are reference classes. In R, there are 3 main types of object oriented programming - S3, S4, and RC (reference classes). RC style programming was chosen because of its similarity to object oriented programming in other languages and because it is the only structure that mimics pass by reference. For more information on object oriented programming and the RC type in R visit ___________________________________.
+As noted above, the classes utilized within the Rsnippets are reference classes. In R, there are 3 main types of object oriented programming - S3, S4, and RC (reference classes). RC style programming was chosen because of its similarity other object oriented programming languages and because it is the only structure that mimics pass by reference. For more information on object oriented programming and the RC type in R visit:
+* [Object Oriented (OO) field guide] (http://adv-r.had.co.nz/OO-essentials.html "OO field guide")
+* [R documentation on reference classes] (http://search.r-project.org/library/methods/html/refClass.html "R documentation")
+* [Reference Class Basics] (http://www.programiz.com/r-programming/reference-class "Basics")
+* [Reference Classes] (http://adv-r.had.co.nz/R5.html "Reference Classes")
 
 
 <!--rsnippet-base class-->
-## The Super Class: "Data"
-Within the code used to run the Rsnippets, a super class Data has been defined. The data class has three fields- meta, group, and errors - and four methods - cleaning, assumptions, test, and result. The fields are initialized as stated in the following table. The methods cleaning, assumptions, and test are not implemented in a way where they handle data processing. Thus, they must be implemented by the user. If they are not, then the snippet cannot be used with the ADBio program. See the table within The User Defined Class: Snippet for more information regarding the implementation of methods. The result method is written to properly format the returns from the methods within Snippet for use with the program. Do not overwrite the results method. See The User Defined Class: Snippet -> Return Values for more information.
+## The Base Class: "Data"
+Within the code used to run the Rsnippets, a super class Data has been defined. The data class has three fields: meta, group, and errors. Additionally four methods belong to Data: cleaning, assumptions, test, and result. The fields are initialized as stated in the following table. Within Data, the methods cleaning, assumptions, and test are implemented in a way such that no data processing is perfromed. Thus, they must be implemented by the user. If they are not, then the snippet cannot be used with the ADBio program. See the table within the section The User Defined Class: Snippet for more information regarding the implementation of methods. The result method is written to properly format the returns from the methods within Snippet for use with the program. Do not overwrite the results method. See The User Defined Class: Snippet -> Return Values for more information.
 
 ### Fields in Data
 
