@@ -7,27 +7,6 @@ Data <- setRefClass("Data", fields = c("meta", "group", "errors"),
                         initFields(meta = meta, group = group, errors = list("", 0))
                       },
                       
-                      ## data cleaning and missing value handler function
-                      cleaning = function(null_string) {
-                        errors[[1]] <<- "Cleaning function not found"
-                        errors[[2]] <<- 2
-                        return(result(error = errors))
-                      },
-                      
-                      ## testing assumptions/requirements
-                      assumptions = function() {
-                        errors[[1]] <<- "Assumption testing function not found"
-                        errors[[2]] <<- 2
-                        return(result(error = errors))
-                      },
-                      
-                      ## statistical testing function
-                      test = function() {
-                        errors[[1]] <<- "Test function not found"
-                        errors[[2]] <<- 2
-                        return(result(error = errors))
-                      },
-                      
                       ## results formatting function
                       result = function(test = list(method = "", p.value = ""), chart = "", 
                                         label = "", g_in = "", g_out = "", error) {
