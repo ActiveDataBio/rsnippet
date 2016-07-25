@@ -21,7 +21,7 @@
 				"organization":"Pacific Northwest National Laboratory"
 			},
 			"created":"06-27-2016",
-			"last_update":"06-28-2016"
+			"last_update":"07-15-2016"
 		},
 		{
 			"name":"Fisher's exact test",
@@ -44,7 +44,7 @@
 				"organization":"Pacific Northwest National Laboratory"
 			},
 			"created":"06-28-2016",
-			"last_update":"06-28-2016"
+			"last_update":"07-25-2016"
 		},
 		{
 			"name":"Kaplan-Meier with Log Rank test",
@@ -67,7 +67,7 @@
 				"organization":"Pacific Northwest National Laboratory"
 			},
 			"created":"06-08-2016",
-			"last_update":"06-29-2016"
+			"last_update":"07-15-2016"
 		},
 		{
 			"name":"Two-sample t-test",
@@ -90,7 +90,7 @@
 				"organization":"Pacific Northwest National Laboratory"
 			},
 			"created":"06-03-2016",
-			"last_update":"06-27-2016"
+			"last_update":"07-15-2016"
 		},
 		{
 			"name":"Wilcoxon rank-sum test",
@@ -113,7 +113,7 @@
 				"organization":"Pacific Northwest National Laboratory"
 			},
 			"created":"06-03-2016",
-			"last_update":"06-29-2016"
+			"last_update":"07-15-2016"
 		}
 	]
 }
