@@ -4,127 +4,18 @@
 ### modified to customize any tests, but the server will run this
 ### original script to check for the correct output of the customized
 ### Rsnippet.
-
+### Note: These tests only check that the return value from the tests
+### follow the correct foramt and only checks for correct error handling
+### if any test is guarenteed to produce an error. Otherwise, it is up to
+### the writer to test for correct results.
 
 ###############################################################################
-## Do not edit the following section before line 171
+## Do not edit the following section before line 70
 ###############################################################################
 
-# setwd("~/GitHub/rsnippet");
+setwd("~/GitHub/rsnippet");
 
-Data <- setRefClass("Data", fields = c("meta", "group", "errors"),
-                    methods = list(
-                      ## initializer function
-                      initialize = function(meta, group) {
-                        initFields(meta = meta, group = group, errors = list("", 0))
-                      },
-                      
-                      ## update Data varaible to new meta and group and reset errors
-                      update = function(meta, group) {
-                        meta <<- meta
-                        group <<- group
-                        errors <<- list("", 0)
-                      },
-                      
-                      ## function to run the snippet tests and return the output
-                      snippet_test = function(null_string) {
-                        tryCatch({
-                          result = vec$cleaning(null_string)
-                          if (result$status != 2) {
-                            result = vec$assumptions()
-                          }
-                          if (result$status != 2) {
-                            result = vec$test()
-                          }
-                          return(result)
-                        },
-                        
-                        error = function(e) {
-                          return(result(error = list(e$message, 3)))
-                        }
-                        )},
-                      
-                      ## results formatting function
-                      result = function(test = list(method = "", p.value = ""), chart = "", 
-                                        label = "", g_in = "", g_out = "", error) {
-                        
-                        code = error[[2]]
-                        if ((code == 2) || (length(error) == 2)) {
-                          messages = error[[1]]
-                        } else {
-                          messages = list()
-                          i = 3
-                          while (i <= (length(error) - 1)) {
-                            messages = c(messages, list(error[[i]]))
-                            i = i + 2
-                          }
-                          code = 1
-                        }
-                        
-                        names(messages) = NULL
-                        
-                        return(list(method = test$method,#gsub("\\'", "\\\\'", test$method),
-                                    pvalue = test$p.value,
-                                    charts = chart,
-                                    labels = label,
-                                    group_in = g_in,
-                                    group_out = g_out,
-                                    msg = unlist(messages),
-                                    status = code))
-                      },
-                      
-                      ## data cleaning and missing value handler function
-                      cleaning = function(null_string) {
-                        errors[[1]] <<- "Cleaning function not found"
-                        errors[[2]] <<- 3
-                        return(result(error = errors))
-                      },
-                      
-                      ## testing assumptions/requirements
-                      assumptions = function() {
-                        errors[[1]] <<- "Assumption testing function not found"
-                        errors[[2]] <<- 3
-                        return(result(error = errors))
-                      },
-                      
-                      ## statistical testing function
-                      test = function() {
-                        errors[[1]] <<- "Test function not found"
-                        errors[[2]] <<- 3
-                        return(result(error = errors))
-                      },
-                      
-                      ## Check if data was read in correctly
-                      read_check = function(meta) {
-                        if (is.null(meta))
-                          stop("No meta data")
-                        return(NULL)
-                      },
-                      
-                      ## Check if data still available after removal of missing values
-                      missing_check = function(index) {
-                        if (length(which(index)) == 0)
-                          stop("No meta data")
-                        return(NULL)
-                      },
-                      
-                      ## Check if there are observations in each group
-                      group_check = function(group) {
-                        if(length(which(group %in% "IN")) == 0 ||
-                           length(which(group %in% "OUT")) == 0) {
-                          stop("No data in one group")
-                        }
-                        return(NULL)
-                      },
-                      
-                      ## Check data is not constant
-                      value_check = function(meta, group) {
-                        datatable = table(meta, group)
-                        if (dim(datatable)[1] == 1)
-                          stop("Same value for each observation")
-                        return(NULL)
-                      }
-                    ))
+source("test/baseClass.r")
 
 return_test = function(result, test, code = 0) {
   if (!is.list(result))
@@ -168,7 +59,7 @@ return_test = function(result, test, code = 0) {
   if (is.null(result$group_out))
     stop("no data returned for \"OUT\" group, should be an empty array if an error occurred in ", test)
   
-  print(paste(test, "success", sep = " "))
+  print(paste(test, "returned correct results format", sep = " "))
 }
 
 ###############################################################################
@@ -179,7 +70,7 @@ return_test = function(result, test, code = 0) {
 # define 'null' strings
 null_string <- c("","[Not Applicable]","[Not Available]","[Pending]","[]")
 
-snippet <- "rcode/t-test.R"
+snippet <- "rcode/chisq.R"
 source(snippet)
 
 ## Testing when meta == NULL
@@ -187,58 +78,50 @@ source(snippet)
 meta = NULL
 group = sample(c('IN','OUT'), length(meta), replace=TRUE)
 vec = Snippet$new(meta, group)
-result = vec$snippet_test(null_string)
-return_test(result, "test of meta = NULL", 1)
+return_test(vec$doTest(null_string), "test of meta = NULL", 1)
 
 ## Testing when meta has two categories
 meta = sample(c('YES','NO'), size = 50, replace = TRUE)
 group = sample(c('IN','OUT'), length(meta), replace=TRUE)
-vec$update(meta, group)
-result = vec$snippet_test(null_string)
-return_test(result, "test of two categories")
+vec = Snippet$new(meta, group)
+return_test(vec$doTest(null_string), "test of two categories")
 
 ## Testing when meta has four categories
 meta = sample(c('YES','NO','MAYBE','UNKNOWN'), size = 50, replace = TRUE)
 group = sample(c('IN','OUT'), length(meta), replace=TRUE)
-vec$update(meta, group)
-result = vec$snippet_test(null_string)
-return_test(result, "test of four categories")
+vec = Snippet$new(meta, group)
+return_test(vec$doTest(null_string), "test of four categories")
 
 ## Testing when the meta categories are encoded as numbers
 meta = sample(c(20, 10, 0, -10), size = 50, replace = TRUE)
 group = sample(c('IN','OUT'), length(meta), replace=TRUE)
-vec$update(meta, group)
-result = vec$snippet_test(null_string)
-return_test(result, "test of numeric names of categories")
+vec = Snippet$new(meta, group)
+return_test(vec$doTest(null_string), "test of numeric names of categories")
 
 ## Testing when meta contains missing values
 meta = sample(c('YES','NO',null_string), size = 50, replace = TRUE)
 group = sample(c('IN','OUT'), length(meta), replace = TRUE)
-vec$update(meta, group)
-result = vec$snippet_test(null_string)
-return_test(result, "test of meta + missing values")
+vec = Snippet$new(meta, group)
+return_test(vec$doTest(null_string), "test of meta + missing values")
 
 ## Testing when all data is missing
 ## Should return an error, status code = 2
 meta = sample(null_string, size = 20, replace = TRUE)
 group = sample(c('IN','OUT'), length(meta), replace=TRUE)
-vec$update(meta, group)
-result = vec$snippet_test(null_string)
-return_test(result, "test of complete missing data", 1)
+vec = Snippet$new(meta, group)
+return_test(vec$doTest(null_string), "test of complete missing data", 1)
 
 ## Testing when there are 10 groups with 5 categories in meta
 meta = sample(c('1', '2', '3', '4', '5', '6', '7', '8', '9', '10'), size = 50, replace = TRUE)
 group = sample(c('IN','OUT'), length(meta), replace = TRUE)
-vec$update(meta, group)
-result = vec$snippet_test(null_string)
-return_test(result, "test of 10 categories")
+vec = Snippet$new(meta, group)
+return_test(vec$doTest(null_string), "test of 10 categories")
 
 ## Testing when there is one observation in one group, many observations in other group
 meta = sample(c('YES','NO'), size = 50, replace = TRUE)
 group = c('IN', rep('OUT', times = (length(meta) - 1)))
-vec$update(meta, group)
-result = vec$snippet_test(null_string)
-return_test(result, "test of one observation in 'IN' group")
+vec = Snippet$new(meta, group)
+return_test(vec$doTest(null_string), "test of one observation in 'IN' group")
 
 ## Testing when one group has all missing values
 ## Should return an error, status code = 2
@@ -246,35 +129,30 @@ meta = rep('YES', times = 25)
 meta = c(meta, sample(null_string, size = 25, replace = TRUE))
 group = rep('IN', length(meta)/2, replace = TRUE)
 group = c(group, rep('OUT', length(meta)/2, replace = TRUE))
-vec$update(meta, group)
-result = vec$snippet_test(null_string)
-return_test(result, "test of all missing values in 'OUT' group", 1)
+vec = Snippet$new(meta, group)
+return_test(vec$doTest(null_string), "test of all missing values in 'OUT' group", 1)
 
 ## Testing when the observations belong to one group
 ## Should return an error, status code = 2
 meta = sample(c('YES','NO'), size = 50, replace = TRUE)
 group = sample(c('IN'), length(meta), replace=TRUE)
-vec$update(meta, group)
-result = vec$snippet_test(null_string)
-return_test(result, "test of all observations in 'IN' group", 1)
+vec = Snippet$new(meta, group)
+return_test(vec$doTest(null_string), "test of all observations in 'IN' group", 1)
 
 ## Testing when there is only one observation per group
 meta = c('YES','NO')
 group = c('IN','OUT')
-vec$update(meta, group)
-result = vec$snippet_test(null_string)
-return_test(result, "test of only one observation per group")
+vec = Snippet$new(meta, group)
+return_test(vec$doTest(null_string), "test of only one observation per group")
 
 ## Testing when there are three observations per group
 meta = sample(c('YES','NO'), size = 6, replace = TRUE)
 group = rep(c('IN','OUT'), times = 3)
-vec$update(meta, group)
-result = vec$snippet_test(null_string)
-return_test(result, "test of three observations per group")
+vec = Snippet$new(meta, group)
+return_test(vec$doTest(null_string), "test of three observations per group")
 
 ## Testing a continuous variable
 meta = rexp(50)
 group = rep(c('IN','OUT'), length(meta), replace = TRUE)
-vec$update(meta, group)
-result = vec$snippet_test(null_string)
-return_test(result, "test of continuous variable")
+vec = Snippet$new(meta, group)
+return_test(vec$doTest(null_string), "test of continuous variable")
