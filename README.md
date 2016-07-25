@@ -129,3 +129,13 @@ Below is a list of the options available for the charts. The first part listed c
 * 2 : a fatal error occurred and the test cannot be run.
 * 1 : an error occurred but the test can still be run (a warning).
 * 0 : no error or warnings occurred.
+
+<!--rsnippet-testing-->
+## Testing
+User written Rsnippets can be tested using the unit tests provided. Using the tests in the automated format in which they are provided provided will only ensure that the tests return the correct output format. To test that the snippet returned the correct results, the tests provided can serve as a template for the kinds of data that should be run, but users must manually ensure that the results are valid.
+
+Unit tests have been split into four categories matching the data types ADBio expects to receive. The files that can be used are:
+* unittest_categorical.R
+* unittest_nominal.R
+* unittest_continuous.R
+* unittest_time2event.R
