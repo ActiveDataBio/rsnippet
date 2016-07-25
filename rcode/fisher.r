@@ -67,7 +67,6 @@ Snippet <- setRefClass("Snippet", contains = "Data", fields = "datatable",
                         
                         test = function() {
                           tryCatch({
-                            print(datatable)
                             test = fisher.test(meta, group, workspace = 1e+7)
                             rows = rownames(datatable)
                             return(result(test, c("column", "stacked-column", "percent-column"),

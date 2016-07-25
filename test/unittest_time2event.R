@@ -5,9 +5,8 @@
 ### original script to check for the correct output of the customized
 ### Rsnippet.
 
-
 ###############################################################################
-## Do not edit the following section before line 171
+## Do not edit following section before line 171
 ###############################################################################
 
 # setwd("~/GitHub/rsnippet");
@@ -166,7 +165,7 @@ return_test = function(result, test, code = 0) {
     stop("no data returned for \"IN\" group, should be an empty array if an error occurred in ", test)
   
   if (is.null(result$group_out))
-    stop("no data returned for \"OUT\" group, should be an empty array if an error occurred in ", test)
+    stop("no data returned fro \"OUT\" group, should be an empty array if an error occurred in ", test)
   
   print(paste(test, "success", sep = " "))
 }
@@ -179,7 +178,7 @@ return_test = function(result, test, code = 0) {
 # define 'null' strings
 null_string <- c("","[Not Applicable]","[Not Available]","[Pending]","[]")
 
-snippet <- "rcode/t-test.R"
+snippet <- "rcode/kaplan_meier.R"
 source(snippet)
 
 ## Testing when meta == NULL
@@ -190,91 +189,112 @@ vec = Snippet$new(meta, group)
 result = vec$snippet_test(null_string)
 return_test(result, "test of meta = NULL", 1)
 
-## Testing when meta has two categories
-meta = sample(c('YES','NO'), size = 50, replace = TRUE)
-group = sample(c('IN','OUT'), length(meta), replace=TRUE)
-vec$update(meta, group)
+## Testing correct coding with random times between 0 and 100 and random events
+meta_time = sample(0:100, size = 50, replace = TRUE)
+meta_event = sample(c('a','b'), length(meta_time), replace = TRUE)
+group = sample(c('IN','OUT'), length(meta_time), replace = TRUE)
+vec$update(paste(meta_time, meta_event, sep = ""), group)
 result = vec$snippet_test(null_string)
-return_test(result, "test of two categories")
+return_test(result, "test of random times and events")
 
-## Testing when meta has four categories
-meta = sample(c('YES','NO','MAYBE','UNKNOWN'), size = 50, replace = TRUE)
-group = sample(c('IN','OUT'), length(meta), replace=TRUE)
-vec$update(meta, group)
+## Testing all events are censored
+meta_time = sample(0:100, size = 50, replace = TRUE)
+meta_event = rep('a', times = length(meta_time))
+group = sample(c('IN','OUT'), length(meta_time), replace = TRUE)
+vec$update(paste(meta_time, meta_event, sep = ""), group)
 result = vec$snippet_test(null_string)
-return_test(result, "test of four categories")
+return_test(result, "test of all events are censored")
 
-## Testing when the meta categories are encoded as numbers
-meta = sample(c(20, 10, 0, -10), size = 50, replace = TRUE)
-group = sample(c('IN','OUT'), length(meta), replace=TRUE)
-vec$update(meta, group)
+## Testing all events in 'OUT' group are censored
+meta_time = sample(0:100, size = 50, replace = TRUE)
+meta_event = c(sample(c('a','b'), size = length(meta_time)/2, replace = TRUE), 
+               rep('a', times = length(meta_time)/2))
+group = c(rep('IN', times = length(meta_time)/2), rep('OUT', times = length(meta_time)/2))
+vec$update(paste(meta_time, meta_event, sep = ""), group)
 result = vec$snippet_test(null_string)
-return_test(result, "test of numeric names of categories")
+return_test(result, "test all events in 'OUT' group are censored")
 
-## Testing when meta contains missing values
-meta = sample(c('YES','NO',null_string), size = 50, replace = TRUE)
-group = sample(c('IN','OUT'), length(meta), replace = TRUE)
-vec$update(meta, group)
+## Testing all events in 'OUT' occured after the events in group 'IN'
+meta_time = c(sample(1:50, size = 25, replace = TRUE), 
+              sample(51:100, size = 25, replace = TRUE))
+meta_event = sample(c('a','b'), size = length(meta_time), replace = TRUE)
+group = c(rep('IN', times = length(meta_time)/2),
+          rep('OUT', times = length(meta_time)/2))
+vec$update(paste(meta_time, meta_event, sep = ""), group)
 result = vec$snippet_test(null_string)
-return_test(result, "test of meta + missing values")
+return_test(result, "test all events in 'OUT' occur after all events in 'IN'")
 
-## Testing when all data is missing
-## Should return an error, status code = 2
-meta = sample(null_string, size = 20, replace = TRUE)
-group = sample(c('IN','OUT'), length(meta), replace=TRUE)
-vec$update(meta, group)
+## Testing with missing values
+meta_time = c(sample(1:100, size = 40, replace = TRUE), 
+              sample(null_string, size = 10, replace = TRUE))
+meta_event = sample(c('a','b'), size = length(meta_time), replace = TRUE)
+group = sample(c('IN','OUT'), size = length(meta_time), replace = TRUE)
+vec$update(paste(meta_time, meta_event, sep = ""), group)
 result = vec$snippet_test(null_string)
-return_test(result, "test of complete missing data", 1)
+return_test(result, "test with missing values")
 
-## Testing when there are 10 groups with 5 categories in meta
-meta = sample(c('1', '2', '3', '4', '5', '6', '7', '8', '9', '10'), size = 50, replace = TRUE)
-group = sample(c('IN','OUT'), length(meta), replace = TRUE)
-vec$update(meta, group)
+## Testing with negative values for time
+meta_time = sample(-20:75, size = 50, replace = TRUE)
+meta_event = sample(c('a','b'), size = length(meta), replace = TRUE)
+group = sample(c('IN','OUT'), size = length(meta), replace = TRUE)
+vec$update(paste(meta_time, meta_event, sep = ""), group)
 result = vec$snippet_test(null_string)
-return_test(result, "test of 10 categories")
+return_test(result, "test with negative time values")
 
-## Testing when there is one observation in one group, many observations in other group
-meta = sample(c('YES','NO'), size = 50, replace = TRUE)
-group = c('IN', rep('OUT', times = (length(meta) - 1)))
-vec$update(meta, group)
+## Testing with all missing values
+## Should return an error message, status code = 2
+meta_time = sample(null_string, size = 50, replace = TRUE)
+group = sample(c('IN','OUT'), size = length(meta), replace = TRUE)
+vec$update(meta_time, group)
 result = vec$snippet_test(null_string)
-return_test(result, "test of one observation in 'IN' group")
+return_test(result, "test with all values missing", 1)
 
-## Testing when one group has all missing values
-## Should return an error, status code = 2
-meta = rep('YES', times = 25)
-meta = c(meta, sample(null_string, size = 25, replace = TRUE))
-group = rep('IN', length(meta)/2, replace = TRUE)
-group = c(group, rep('OUT', length(meta)/2, replace = TRUE))
-vec$update(meta, group)
+## Testing with one group missing
+## Should return an error message, status code = 2
+meta_time = c(sample(null_string, size = 25, replace = TRUE), sample(1:100, size = 25, replace = TRUE))
+meta_event = sample(c('a','b'), size = length(meta), replace = TRUE)
+group = c(rep('IN', times = length(meta)/2), rep('OUT', times = length(meta)/2))
+vec$update(paste(meta_time, meta_event, sep = ""), group)
 result = vec$snippet_test(null_string)
-return_test(result, "test of all missing values in 'OUT' group", 1)
+return_test(result, "test with 'IN' group missing")
 
-## Testing when the observations belong to one group
-## Should return an error, status code = 2
-meta = sample(c('YES','NO'), size = 50, replace = TRUE)
-group = sample(c('IN'), length(meta), replace=TRUE)
-vec$update(meta, group)
+## Testing with one observation in 'OUT' and many in 'IN' group
+meta_time = sample(1:100, size = 50, replace = TRUE)
+meta_event = c(sample(c('a','b'), size = (length(meta) - 1), replace = TRUE), 'b')
+group = c(rep('IN', times = (length(meta) - 1)), 'OUT')
+vec$update(paste(meta_time, meta_event, sep = ""), group)
 result = vec$snippet_test(null_string)
-return_test(result, "test of all observations in 'IN' group", 1)
+return_test(result, "test with one 'OUT' event but many 'IN' events", 1)
 
-## Testing when there is only one observation per group
-meta = c('YES','NO')
+## Testing with one event per group
+meta_time = sample(1:100, size = 2, replace = TRUE)
+meta_event = c('b','b')
 group = c('IN','OUT')
-vec$update(meta, group)
+vec$update(paste(meta_time, meta_event, sep = ""), group)
 result = vec$snippet_test(null_string)
-return_test(result, "test of only one observation per group")
+return_test(result, "test with one event per group")
 
-## Testing when there are three observations per group
-meta = sample(c('YES','NO'), size = 6, replace = TRUE)
-group = rep(c('IN','OUT'), times = 3)
-vec$update(meta, group)
+## Testing with three events per group
+meta_time = sample(1:100, size = 6, replace = TRUE)
+meta_event = rep('b', times = length(meta))
+group = rep(c('IN','OUT'), times = length(meta)/2)
+vec$update(paste(meta_time, meta_event, sep = ""), group)
 result = vec$snippet_test(null_string)
-return_test(result, "test of three observations per group")
+return_test(result, "test wiht three events per group")
 
-## Testing a continuous variable
-meta = rexp(50)
-group = rep(c('IN','OUT'), length(meta), replace = TRUE)
+## Testing with incorrect event coding
+## Should return an error message, status code = 2
+meta_time = sample(1:100, size = 50, replace = TRUE)
+meta_event = sample(c('c','d'), size = length(meta), replace = TRUE)
+group = sample(c('IN','OUT'), size = length(meta), replace = TRUE)
+vec$update(paste(meta_time, meta_event, sep = ""), group)
+result = vec$snippet_test(null_string)
+return_test(result, "test with incorrect event coding", 1)
+
+## Testing with categorical data
+## Should return an error message, status code = 2
+meta = sample(c('YES','NO'), size = 50, replace = TRUE)
+group = sample(c('IN','OUT'), size = length(meta), replace = TRUE)
 vec$update(meta, group)
 result = vec$snippet_test(null_string)
-return_test(result, "test of continuous variable")
+return_test(result, "test with categorical data", 1)

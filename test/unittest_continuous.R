@@ -5,9 +5,8 @@
 ### original script to check for the correct output of the customized
 ### Rsnippet.
 
-
 ###############################################################################
-## Do not edit the following section before line 171
+## Do not edit following section before line 171
 ###############################################################################
 
 # setwd("~/GitHub/rsnippet");
@@ -166,7 +165,7 @@ return_test = function(result, test, code = 0) {
     stop("no data returned for \"IN\" group, should be an empty array if an error occurred in ", test)
   
   if (is.null(result$group_out))
-    stop("no data returned for \"OUT\" group, should be an empty array if an error occurred in ", test)
+    stop("no data returned fro \"OUT\" group, should be an empty array if an error occurred in ", test)
   
   print(paste(test, "success", sep = " "))
 }
@@ -190,33 +189,41 @@ vec = Snippet$new(meta, group)
 result = vec$snippet_test(null_string)
 return_test(result, "test of meta = NULL", 1)
 
-## Testing when meta has two categories
-meta = sample(c('YES','NO'), size = 50, replace = TRUE)
+## Testing when meta comes from a N(0,1) population
+meta = rnorm(n = 50, mean = 0, sd = 1)
 group = sample(c('IN','OUT'), length(meta), replace=TRUE)
 vec$update(meta, group)
 result = vec$snippet_test(null_string)
-return_test(result, "test of two categories")
+return_test(result, "test of meta sampled from a N(0,1) population")
 
-## Testing when meta has four categories
-meta = sample(c('YES','NO','MAYBE','UNKNOWN'), size = 50, replace = TRUE)
+## Testing when meta comes from a N(10,5) population (all positive values)
+meta = rnorm(n = 50, mean = 10, sd = 5)
 group = sample(c('IN','OUT'), length(meta), replace=TRUE)
 vec$update(meta, group)
 result = vec$snippet_test(null_string)
-return_test(result, "test of four categories")
+return_test(result, "test of meta sampled from a N(10, 5) population")
 
-## Testing when the meta categories are encoded as numbers
-meta = sample(c(20, 10, 0, -10), size = 50, replace = TRUE)
-group = sample(c('IN','OUT'), length(meta), replace=TRUE)
-vec$update(meta, group)
-result = vec$snippet_test(null_string)
-return_test(result, "test of numeric names of categories")
-
-## Testing when meta contains missing values
-meta = sample(c('YES','NO',null_string), size = 50, replace = TRUE)
+## Testing when meta comes from an exp(2)
+meta = rexp(n = 50, rate = 2)
 group = sample(c('IN','OUT'), length(meta), replace = TRUE)
 vec$update(meta, group)
 result = vec$snippet_test(null_string)
-return_test(result, "test of meta + missing values")
+return_test(result, "test of meta sampled from a exp(2) population")
+
+## Testing when meta comes from an exp(2)*-1 population (all negative values)
+meta = rexp(n = 50, rate = 2)
+meta = meta * -1
+group = sample(c('IN','OUT'), length(meta), replace = TRUE)
+vec$update(meta, group)
+result = vec$snippet_test(null_string)
+return_test(result, "test of meta sampled from exp(2) * -1 population")
+
+## Testing when meta contains missing values
+meta = sample(c(rnorm(n = 50, mean = 0, sd = 1), null_string), size = 50, replace = TRUE)
+group = sample(c('IN','OUT'), length(meta), replace = TRUE)
+vec$update(meta, group)
+result = vec$snippet_test(null_string)
+return_test(result, "test of meta containing missing values")
 
 ## Testing when all data is missing
 ## Should return an error, status code = 2
@@ -224,57 +231,58 @@ meta = sample(null_string, size = 20, replace = TRUE)
 group = sample(c('IN','OUT'), length(meta), replace=TRUE)
 vec$update(meta, group)
 result = vec$snippet_test(null_string)
-return_test(result, "test of complete missing data", 1)
-
-## Testing when there are 10 groups with 5 categories in meta
-meta = sample(c('1', '2', '3', '4', '5', '6', '7', '8', '9', '10'), size = 50, replace = TRUE)
-group = sample(c('IN','OUT'), length(meta), replace = TRUE)
-vec$update(meta, group)
-result = vec$snippet_test(null_string)
-return_test(result, "test of 10 categories")
+return_test(result, "test when all data is missing", 1)
 
 ## Testing when there is one observation in one group, many observations in other group
-meta = sample(c('YES','NO'), size = 50, replace = TRUE)
+meta = runif(n = 50, min = -5, max = 5)
 group = c('IN', rep('OUT', times = (length(meta) - 1)))
 vec$update(meta, group)
 result = vec$snippet_test(null_string)
-return_test(result, "test of one observation in 'IN' group")
+return_test(result, "test when there in one observation in group 'IN'")
 
 ## Testing when one group has all missing values
 ## Should return an error, status code = 2
-meta = rep('YES', times = 25)
+meta = rgamma(n = 25, shape = 1)
 meta = c(meta, sample(null_string, size = 25, replace = TRUE))
-group = rep('IN', length(meta)/2, replace = TRUE)
-group = c(group, rep('OUT', length(meta)/2, replace = TRUE))
+group = rep('IN', times = 25)
+group = c(group, rep('OUT'), times = 25)
 vec$update(meta, group)
 result = vec$snippet_test(null_string)
-return_test(result, "test of all missing values in 'OUT' group", 1)
+return_test(result, "test when one group has all missing values", 1)
 
 ## Testing when the observations belong to one group
 ## Should return an error, status code = 2
-meta = sample(c('YES','NO'), size = 50, replace = TRUE)
+meta = rf(n = 50, df1 = 2, df2 = 1)
 group = sample(c('IN'), length(meta), replace=TRUE)
 vec$update(meta, group)
 result = vec$snippet_test(null_string)
-return_test(result, "test of all observations in 'IN' group", 1)
+return_test(result, "test when all observations belong to one group", 1)
 
 ## Testing when there is only one observation per group
-meta = c('YES','NO')
+meta = runif(n = 2, min = 0, max = 1)
 group = c('IN','OUT')
 vec$update(meta, group)
 result = vec$snippet_test(null_string)
-return_test(result, "test of only one observation per group")
+return_test(result, "test with one observation per group")
 
 ## Testing when there are three observations per group
-meta = sample(c('YES','NO'), size = 6, replace = TRUE)
+meta = runif(n = 6, min = 0, max = 5)
 group = rep(c('IN','OUT'), times = 3)
 vec$update(meta, group)
 result = vec$snippet_test(null_string)
-return_test(result, "test of three observations per group")
+return_test(result, "test with three observations per group")
 
-## Testing a continuous variable
-meta = rexp(50)
-group = rep(c('IN','OUT'), length(meta), replace = TRUE)
+## Testing when meta is categorical and categories are encoded as numbers
+meta = sample(c(20, 10, 0, -10), size = 50, replace = TRUE)
+group = sample(c('IN','OUT'), length(meta), replace=TRUE)
 vec$update(meta, group)
 result = vec$snippet_test(null_string)
-return_test(result, "test of continuous variable")
+return_test(result, "test of numerical categorical data")
+
+## Testing when meta is categorical and categories are encoded as strings
+## Should return an error, status code = 2
+meta = sample(c('YES','NO','MAYBE','UNKNOWN'), size = 50, replace = TRUE)
+group = sample(c('IN','OUT'), length(meta), replace=TRUE)
+vec$update(meta, group)
+result = vec$snippet_test(null_string)
+return_test(result, "test of character categorical data", 1)
