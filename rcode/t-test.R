@@ -24,7 +24,7 @@ Snippet <- setRefClass("Snippet", contains = "Data",
                          cleaning = function(null_string) {
                            tryCatch({
                              
-                             ## initial read it
+                             ## initial read in
                              read_check(meta)
                              meta <<- as.character(meta)
                              

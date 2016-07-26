@@ -41,6 +41,19 @@ Snippet <- setRefClass("Snippet", contains = "Data",
                              ## removal of missing values, and group_check(group)
                              ## to ensure there is at least one observation per
                              ## group.
+                            
+                             ###Example########################################
+                             # # initial read in                              
+                             # null_check(meta)                               
+                             # meta <<- as.character(meta)                    
+                             #                                                
+                             # # remove missing values                          
+                             # index = !(meta %in% null_string)           
+                             # missing_check(index)                     
+                             # group <<- group[index]                   
+                             # meta <<- meta[index]                     
+                             # group_check(group)                   
+                            
             
                            },
                            
@@ -50,11 +63,10 @@ Snippet <- setRefClass("Snippet", contains = "Data",
                              ## Can simply return an error or may be customized
                              ## to handle the error in another way.
                              
-                             ## to return the error, uncomment 
-                             ## the following two lines.
-                             
-                             #e$message = gsub("\n", " ", e$message)
-                             #errors <<- list(e$message, 2)
+                             ###Example########################################
+                             # e$message = gsub("\n", " ", e$message)
+                             # errors <<- list(e$message, 2)
+                           
                            },
                            
                            finally = {
@@ -66,9 +78,10 @@ Snippet <- setRefClass("Snippet", contains = "Data",
                             ## returned in order for the program to continue
                             ## to the assumptions method.
                              
-                            ## example of the return statement: 
-                            ## return(result(error = errors))
-                           })
+                            ###Example######################################### 
+                            # return(result(error = errors))
+                           
+                          })
                          },
                          
                          ## Assumption checking
@@ -82,6 +95,20 @@ Snippet <- setRefClass("Snippet", contains = "Data",
                              ## and can be used here is the value_check(meta, group)
                              ## to ensure that the data is not constant.
                              
+                             ###Example########################################
+                             # value_check(meta, group)
+                             #
+                             # # split data into in and out groups
+                             # group_index = (group %in% "IN")
+                             # meta_in <<- meta[group_index]
+                             # meta_out <<- meta[!group_index]
+                             #
+                             # # normality test
+                             # if (!is.null(norm_check(meta_in, meta_out))) {
+                             #   errors <<- c(errors, 
+                             #                list("At least one group is not normally distributed", 1))
+                             # }
+                             
                            },   
                            
                            error = function(e) {
@@ -89,12 +116,10 @@ Snippet <- setRefClass("Snippet", contains = "Data",
                              ## Error handler function for the assumptions method
                              ## Can simply return an error or may be customized
                              ## to handle the error in another way.
-                             
-                             ## to return the error, implement the uncomment 
-                             ## the following two lines.
-                             
-                             #e$message = gsub("\n", " ", e$message)
-                             #errors <<- list(e$message, 2) 
+                    
+                             ###Example########################################
+                             # e$message = gsub("\n", " ", e$message)
+                             # errors <<- list(e$message, 2) 
                              
                            }, 
                            
@@ -107,8 +132,8 @@ Snippet <- setRefClass("Snippet", contains = "Data",
                              ## returned in order for the program to continue
                              ## to the test method.
                              
-                             ## example of the return statement: 
-                             ## return(result(error = errors))
+                             ###Example########################################
+                             # return(result(error = errors))
                            
                             })   
                          },
@@ -122,6 +147,18 @@ Snippet <- setRefClass("Snippet", contains = "Data",
                              ## be returned at this step if the test ran
                              ## without any errors
                              
+                             ###Example########################################
+                             # var = var.test(meta_in, meta_out, alternative = "two.sided")
+                             # if (var$p.value < .05) {
+                             #   test = t.test(meta_in, meta_out,
+                             #                alternative= "two.sided", var.equal = FALSE)
+                             # } else {
+                             # test = t.test(meta_in, meta_out,
+                             #                alterantive = "two.sided", var.equal = TRUE)
+                             # }
+                             #
+                             # return(result(test, c("box"), "", meta_in, meta_out, errors))
+                             
                            },
                            
                            ## Statistical test
@@ -134,11 +171,22 @@ Snippet <- setRefClass("Snippet", contains = "Data",
                              ## to return the error, implement the uncomment 
                              ## the following two lines.
                              
-                             #e$message = gsub("\n", " ", e$message)
-                             #errors <<- list(e$message, 2)
+                             ###Example########################################
+                             # e$message = gsub("\n", " ", e$message)
+                             # errors <<- list(e$message, 2)
                              
                            })
                          }
                        ))
 
 ## Add any additional functions needed here (e.g. any functions for additional checks)
+
+## How to test your Rsnippet
+#
+# Unit tests have been provided, simply choose the correct data type that your test should
+# be run with (categorical, nominal, continuous, time to event). Each predefined test will
+# be run and will output either a success or an error message. Test that will be run include
+# test involving missing data and small sample sizes. These test can be customized also 
+# by either following the format of the others and writing your own, or by editing the tests
+# already implemented. For complete directions regarding running and testing your Rsnippet,
+# see "...".
