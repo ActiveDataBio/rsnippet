@@ -105,10 +105,10 @@ Each method should return the value received from the result function within the
 |:--------:|:---------:|
 |test|A list consisting of the name of the test that was ran, encoded as a string, and the p-value obtained from the test, encoded as a double. The name of the test should be named "method" while the p-value should be named "p.value".|
 |chart|An array of the chart types, encoded as strings, which will be used to output the data. A list of accepted types is available below.|
-|labels|The labels that are used for the different groups tested, encoded as an array of strings.|
+|labels|The labels that are used for the different groups tested, encoded as an array of strings (only needed for categorical tests).|
 |group_in|The data included within the "in" group, encoded as an array. This is used to gather counts for the displayed chart.|
 |group_out| The data included within the "out" group, encoded as an array. This is used to gather counts for the displayed chart.|
-|error|A list consisting of the error that occurred, a list of warnings, or information that no error occurred. Each value of the list should be a list consisting of the error message, encoded as a string, and a corresponding status code, encoded as a integer. A list of the codes can be found below. If a fatal error occurred this parameter should consist of a list with only the message and status code. If warnings occurred, this parameter should consist of a list of every warning and its status code. The default is a blank string and status code 0 indicating no error or warning occurred.|
+|error|A list consisting of the error that occurred, a list of warnings, or information that no error occurred. Each value of the list should be a list consisting of the error message, encoded as a string, and a corresponding status code, encoded as an integer. A list of the codes can be found below. If a fatal error occurred this parameter should consist of a list with only the message and status code. If warnings occurred, this parameter should consist of a list of every warning and its status code. The default is a blank string and status code 0 indicating no error or warning occurred.|
 
 ##### Important Note
 If a fatal error occurred during data processing, the errors field should be returned to the result method within Data.
