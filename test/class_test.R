@@ -1,4 +1,4 @@
-setwd("~/GitHub/rsnippet")
+# setwd("~/GitHub/rsnippet")
 
 source("test/baseClass.r")
 
@@ -16,21 +16,19 @@ meta <- fixFactor(metadata$PlatinumFreeInterval)
 
 # group (randomly generated or select a group)
 group <- sample(c('IN','OUT'), length(meta), replace=TRUE)
-#group <- rep('OUT', length(meta))
-#group[which(metadata$group=="E")] <- 'IN'
+# or choose a predefined group if using "metadata.tsv" from the ADBio repository
+## group <- rep('OUT', length(meta))
+## group[which(metadata$group=="E")] <- 'IN'
 
 # define 'null' strings
+# if using your own dataset, edit the null_string to match your coding
 null_string <- c("","[Not Applicable]","[Not Available]","[Pending]","[]")
 
+# snippet <- "name_of_snippet.R"
 snippet <- "rcode/wilcoxon.R"
 source(snippet)
 
+# run the test and print the output
 vec = Snippet$new(meta, group)
-result = vec$cleaning(null_string)
-if (result$status != 2) {
-  result = vec$assumptions()
-}
-if (result$status != 2) {
-  result = vec$test()
-}
+result = vec$doTest(null_string)
 result
