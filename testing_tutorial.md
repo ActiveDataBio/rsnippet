@@ -89,3 +89,45 @@ Important Note: The unit test only ensures that the return values were formatted
   * To repeat the same tests, rerun lines 76 - 158
   * Each test can also be run individually instead of all at once.
   * If a change is made within the snippet file, the <code>source</code> call must be reran (line 73).
+
+
+#### Table 1
+
+|Variable                            |Type                                         |
+|:----------------------------------:|:-------------------------------------------:|
+|PlatinumFreeInterval                |continuous (Maximum: 117.63   Minimum: -1.8) |
+|PlatinumStatus                      |categorical (Resistant, Too Early, Sensitive)|
+|additional_chemo_therapy            |categorical (YES, NO)                        |
+|additional_drug_therapy             |categorical (YES, NO)                        |
+|additional_immuno_therapy           |categorical (YES, NO)                        |
+|additional_pharmaceutical_therapy   |categorical (YES, NO)                        |
+|additional_radiation_therapy        |categorical (YES, NO)                        |
+|age_at_initial_pathologic_diagnosis |continuous (Maximum: 87   Minimum: 34)       |
+|chemo_therapy                       |categorical (YES, NO)                        |
+|days_to_death                       |continuous (Maximum: 4,623   Minimum: 9)     |
+|days_to_inital_pathologic_diagnosis |NA                                           |
+|days_to_last_followup               |continuous (Maximum: 5,480   Minimum: 9)     |
+|days_to_death_or_LFU                |continuous (Maximum: 5,480   Minimum: 9)     |
+|days_to_tumor_progression           |continuous (Maximum: 2,139   Minimum: 27)    |
+|days_to_tumor_recurrence            |continuous (Maximum: 1,673   Minimum: 145)   |
+|daystotumorprogorrecur              |continuous (Maximum: 5,480   Minimum: 9)     |
+|ProgorRecur                         |categorical (YES, NO)                        |
+|ethnicity                           |NA                                           |
+|immuno_therapy                      |categorical (YES, NO)                        |
+|pretreatment_history                |NA                                           |
+|primary_therapy_outcome_success     |categorical (COMPLETE RESPONSE, PROGRESSIVE DISEASE, PARTIAL RESPONSE, STABLE DISEASE)|
+|race                                |categorical (Black or African American, White, Asian, American Indian or Alaska Native)|
+|radiation_therapy                   |categorical (YES, NO)                        |
+|residual_tumor                      |categorical (R0, R1)                         |
+|site_of_tumor_first_recurrence      |categorical (LOCO-REGIONAL, LOCOREGIONAL AND METASTASIS, METASTASIS)|
+|targeted_molecular_therapy          |categorical (YES, NO)                        |
+|tissue_source_site                  |categorical (9, 13, 23, 24, 25, 29, 30, 36, 42, 59, 61)|
+|tumor_residual_disease              |categorical (No macroscopic disease, 1-10 mm, >20 mm)|
+|tumor_stage                         |categorical (IC, IIA, IIB, IIC, IIIA, IIIB, IIIC, IV)|
+|vital_status                        |categorical (LIVING, DECEASED)                |
+|year_of_initial_pathologic_diagnosis|oridnal (1992 - 2009)                         |
+|Normal_Control                      |categorical (Germline Blood, Solid Tissue Normal (DNA))|
+|TSS                                 |categorical (BC Cancer, Brigham/Womens, Cedars Sinai, Christiana, Duke, Mayo, MSK, Roswell Park, UCSF, UPMC, Wash U)|
+|Tumor.Type                          |NA                                             |
+|BCR_Status                          |NA                                             |
+|K.M.Column                          |Time to event (survival)                       |
