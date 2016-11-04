@@ -13,12 +13,11 @@
 #' args[7] base path for r script resources
 #
 args <- commandArgs(trailingOnly = TRUE)
-srcPath <- args[7]
+# srcPath <- args[7]
 setwd(args[1])
 print("loading libraries and classes")
 library('rjson')
-source(paste0(args[7],"/rcode/baseClass.r"))
-source(paste0(args[7],"/rcode/resultClass.r"))
+source("../rsnippet/dist/baseClass.r")
 
 findNode <- function(parent, name) {
   if (!is.null(parent$name) && parent$name == name) {
@@ -35,26 +34,26 @@ findNode <- function(parent, name) {
   }
 }
 
-toJson <- function(result){
-  ################################################################
-  ## generate json string
-  ################################################################
-  str = '{"stats":['
-  count = 1
-  for(j in (1:length(result))){
-    temp = result[[j]]
-    if(!is.null(temp)){
-      if (count == 1) {
-        str = paste0(str,temp$toJson());
-      } else {
-        str = paste0(str, ',', temp$toJson())
-      }
-      count = count + 1
-    }
-  }
-  str = paste0(str, ']', ',"node":"', nodeName, '"}')
-  return(str)
-}
+# toJson <- function(result){
+#   ################################################################
+#   ## generate json string
+#   ################################################################
+#   str = '{"stats":['
+#   count = 1
+#   for(j in (1:length(result))){
+#     temp = result[[j]]
+#     if(!is.null(temp)){
+#       if (count == 1) {
+#         str = paste0(str,temp$toJson());
+#       } else {
+#         str = paste0(str, ',', temp$toJson())
+#       }
+#       count = count + 1
+#     }
+#   }
+#   str = paste0(str, ']', ',"node":"', nodeName, '"}')
+#   return(str)
+# }
 
 findLeaves <- function(node) {
   if (!is.null(node$children)) {
@@ -144,20 +143,19 @@ for (i in 2:ncol(metadata)) {
   meta <- fixFactor(meta)
   if (!is.null(custom_codes) && col_name %in% custom_codes$col) {
 #    snippet <- as.character(custom_codes$snippet[custom_codes$col==col_name])
-     snippet <- paste0(args[7],'/rcode/',as.character(custom_codes$snippet[custom_codes$col==col_name]),'.r')  
+     snippet <- paste0('../rsnippet/dist/',as.character(custom_codes$snippet[custom_codes$col==col_name]),'.r')  
       print(paste0("custom code for ", col_name, ": ", snippet))
   } else {
-    snippet <- paste0(args[7],'/rcode/',config[1],'.r')
+    snippet <- paste0('../rsnippet/dist/',config[1],'.r')
   }
   print(paste0("loading snippet file for ",col_name))
-  print(paste0(args[7],'/rcode/',config[1],'.r'))
+  print(paste0('../rsnippet/dist/',config[1],'.r'))
   source(snippet)
   vec = Snippet$new(meta, group)
   
   test_result = vec$doTest(null_string)
   if(test_result$status == 0){
     test_result$attribute=col_name
-    #results = addToResult(toJSON(test_result),results)  
     results[i-1] = toJSON(test_result)
   }
   print("test finished")
