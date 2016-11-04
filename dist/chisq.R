@@ -61,10 +61,10 @@ Snippet <- setRefClass("Snippet", contains = "Data", fields = "datatable",
                              ## check expected values
                              datatable <<- table(meta, group)
                              value_check(meta, group)
-                             if (!is.null(freq_check(datatable, length(meta)))) {
-                               errors <<- c(errors, list("At least 20% of the expected counts are <5",
-                                                         1))
-                             }
+                             # if (!is.null(freq_check(datatable, length(meta)))) {
+                             #   errors <<- c(errors, list("At least 20% of the expected counts are <5",
+                             #                             1))
+                             # }
                            },
                            
                            error = function(e) {

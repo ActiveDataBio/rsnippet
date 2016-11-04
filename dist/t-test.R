@@ -64,10 +64,10 @@ Snippet <- setRefClass("Snippet", contains = "Data",
                             meta_out <<- meta[!group_index]
                          
                             ## normality test
-                            if (!is.null(norm_check(meta_in, meta_out))) {
-                              errors <<- c(errors, 
-                                            list("At least one group is not normally distributed", 1))
-                            }
+                            # if (!is.null(norm_check(meta_in, meta_out))) {
+                            #   errors <<- c(errors, 
+                            #                 list("At least one group is not normally distributed", 1))
+                            # }
                            }, 
                            
                            error = function(e) {
